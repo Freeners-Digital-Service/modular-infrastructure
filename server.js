@@ -97,6 +97,49 @@ app.post("/api/chatbots/ai", async (req, res) => {
   }
 });
 
+/* AI Agent Engine */
+
+app.post("/api/agent", async (req, res) => {
+
+  try {
+
+    const message = req.body.message;
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: "You are an AI agent for Freener's Digital Services. You help users automate tasks like CRM setup, automation workflows, cloud setup, cybersecurity scans and web applications."
+          },
+          {
+            role: "user",
+            content: message
+          }
+        ]
+      })
+    });
+
+    const data = await response.json();
+
+    res.json(data);
+
+  } catch (error) {
+
+    res.status(500).json({
+      error: "AI Agent failed"
+    });
+
+  }
+
+});
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
