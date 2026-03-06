@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
   });
 });
 
-// Health check route
+// Health check
 app.get("/health", (req, res) => {
   res.json({
     uptime: process.uptime(),
@@ -23,6 +23,6 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
