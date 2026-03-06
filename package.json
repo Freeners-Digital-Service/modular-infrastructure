@@ -1,0 +1,14 @@
+{
+  "name": "modular-infrastructure",
+  "version": "1.0.0",
+  "description": "Core backend infrastructure for scalable SaaS and AI systems",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Freener Awhaefe",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
