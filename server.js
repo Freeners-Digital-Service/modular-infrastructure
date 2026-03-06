@@ -23,17 +23,47 @@ app.get("/health", (req, res) => {
   });
 });
 
-/* Infrastructure status */
-app.get("/api/status", (req, res) => {
+
+/* AI Chatbots */
+app.get("/api/chatbots", (req, res) => {
   res.json({
-    system: "Freener Modular Infrastructure",
-    services: [
-      "AI Chatbots",
-      "CRM Systems",
-      "Cloud Infrastructure",
-      "Automation",
-      "Web Apps"
-    ],
+    service: "AI Chatbots",
+    status: "Operational",
+    timestamp: new Date()
+  });
+});
+
+/* CRM Systems */
+app.get("/api/crm", (req, res) => {
+  res.json({
+    service: "CRM Systems",
+    status: "Operational",
+    timestamp: new Date()
+  });
+});
+
+/* Cloud Infrastructure */
+app.get("/api/cloud", (req, res) => {
+  res.json({
+    service: "Cloud Infrastructure",
+    status: "Operational",
+    timestamp: new Date()
+  });
+});
+
+/* Automation */
+app.get("/api/automation", (req, res) => {
+  res.json({
+    service: "Automation",
+    status: "Operational",
+    timestamp: new Date()
+  });
+});
+
+/* Web Apps */
+app.get("/api/webapps", (req, res) => {
+  res.json({
+    service: "Web Apps",
     status: "Operational",
     timestamp: new Date()
   });
