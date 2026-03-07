@@ -107,6 +107,38 @@ function agentRouter(message) {
 }
 
 /* =========================
+   TOOL SYSTEM
+========================= */
+
+function createCRM() {
+  return {
+    tool: "createCRM",
+    result: "CRM pipeline created with stages: Lead → Qualified → Proposal → Closed"
+  };
+}
+
+function createAutomationWorkflow() {
+  return {
+    tool: "automation",
+    result: "Automation workflow created: form → database → email notification"
+  };
+}
+
+function deployCloudServer() {
+  return {
+    tool: "cloud",
+    result: "Cloud server deployment initiated with firewall and backups"
+  };
+}
+
+function runSecurityScan() {
+  return {
+    tool: "security",
+    result: "Security scan started. Checking vulnerabilities and firewall rules."
+  };
+}
+
+/* =========================
    UNIVERSAL AI AGENT ENGINE
 ========================= */
 
@@ -117,6 +149,28 @@ app.post("/api/agent", async (req, res) => {
     const message = req.body.message;
 
     const agent = agentRouter(message);
+
+    /* =========================
+   TOOL EXECUTION
+========================= */
+
+let toolResult = null;
+
+if (agent === "crm_agent") {
+  toolResult = createCRM();
+}
+
+if (agent === "automation_agent") {
+  toolResult = createAutomationWorkflow();
+}
+
+if (agent === "cloud_agent") {
+  toolResult = deployCloudServer();
+}
+
+if (agent === "security_agent") {
+  toolResult = runSecurityScan();
+}
 
     console.log("Agent selected:", agent);
 
@@ -147,10 +201,11 @@ app.post("/api/agent", async (req, res) => {
 
     const data = await response.json();
 
-    res.json({
-      agent,
-      response: data
-    });
+res.json({
+  agent,
+  toolResult,
+  ai: data
+  });
 
   } catch (error) {
 
