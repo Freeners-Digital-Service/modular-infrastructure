@@ -1,8 +1,11 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const JWT_SECRET = "freener_super_secret_key";
 
 app.use(cors());
 app.use(express.json());
@@ -27,6 +30,23 @@ async function getMemory(user) {
     .slice(-5)
     .reverse();
 }
+
+/* =========================
+   AUTH LOGIN
+========================= */
+
+app.post("/auth/login", (req, res) => {
+  const { user } = req.body;
+
+  const token = jwt.sign({ user }, JWT_SECRET, {
+    expiresIn: "24h"
+  });
+
+  res.json({
+    message: "Login successful",
+    token
+  });
+});
 
 /* =========================
    ROOT
