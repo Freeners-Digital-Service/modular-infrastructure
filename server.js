@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient } = require("mongodb");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,27 +8,13 @@ app.use(cors());
 app.use(express.json());
 
 /* =========================
-   MONGODB CONNECTION
+   MEMORY (TEMP IN-MEMORY)
 ========================= */
 
-const client = new MongoClient(process.env.MONGODB_URI);
-
-let db;
-
-async function connectDB() {
-  await client.connect();
-  db = client.db("freener_ai");
-  console.log("MongoDB connected");
-}
-
-connectDB();
-
-/* =========================
-   MEMORY FUNCTIONS
-========================= */
+const memoryStore = [];
 
 async function saveMemory(user, message) {
-  await db.collection("memory").insertOne({
+  memoryStore.push({
     user,
     message,
     time: new Date()
@@ -37,12 +22,10 @@ async function saveMemory(user, message) {
 }
 
 async function getMemory(user) {
-  return await db
-    .collection("memory")
-    .find({ user })
-    .sort({ time: -1 })
-    .limit(5)
-    .toArray();
+  return memoryStore
+    .filter(m => m.user === user)
+    .slice(-5)
+    .reverse();
 }
 
 /* =========================
