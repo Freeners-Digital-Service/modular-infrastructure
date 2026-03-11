@@ -78,17 +78,47 @@ async function getMemory(user) {
    AUTH LOGIN
 ========================= */
 
-app.post("/auth/login", (req, res) => {
-  const { user } = req.body;
+app.post("/auth/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
 
-  const token = jwt.sign({ user }, JWT_SECRET, {
-    expiresIn: "24h"
-  });
+    const result = await pool.query(
+      "SELECT * FROM users WHERE username = $1",
+      [username]
+    );
 
-  res.json({
-    message: "Login successful",
-    token
-  });
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        error: "User not found"
+      });
+    }
+
+    const user = result.rows[0];
+
+    const validPassword = await bcrypt.compare(password, user.password);
+
+    if (!validPassword) {
+      return res.status(401).json({
+        error: "Invalid password"
+      });
+    }
+
+    const token = jwt.sign(
+      { user: user.username },
+      JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    res.json({
+      message: "Login successful",
+      token
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: "Login failed"
+    });
+  }
 });
 
 /* =========================
