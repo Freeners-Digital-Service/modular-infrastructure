@@ -148,6 +148,40 @@ app.post("/auth/register", async (req, res) => {
 });
 
 /* =========================
+   JWT VERIFY MIDDLEWARE
+========================= */
+
+function verifyToken(req, res, next) {
+
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(403).json({
+      error: "Token required"
+    });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    req.user = decoded.user;
+
+    next();
+
+  } catch (error) {
+
+    return res.status(401).json({
+      error: "Invalid token"
+    });
+
+  }
+
+}
+
+/* =========================
    ROOT
 ========================= */
 
@@ -262,7 +296,7 @@ function runSecurityScan() {
    UNIVERSAL AI AGENT ENGINE
 ========================= */
 
-app.post("/api/agent", async (req, res) => {
+app.post("/api/agent", verifyToken, async (req, res) => {
 
   try {
 
