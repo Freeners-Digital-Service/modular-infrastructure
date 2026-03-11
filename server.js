@@ -11,24 +11,30 @@ app.use(cors());
 app.use(express.json());
 
 /* =========================
-   MEMORY (TEMP IN-MEMORY)
+   POSTGRES MEMORY
 ========================= */
 
-const memoryStore = [];
+const { Pool } = require("pg");
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
 async function saveMemory(user, message) {
-  memoryStore.push({
-    user,
-    message,
-    time: new Date()
-  });
+  await pool.query(
+    "INSERT INTO memory (username, message) VALUES ($1, $2)",
+    [user, message]
+  );
 }
 
 async function getMemory(user) {
-  return memoryStore
-    .filter(m => m.user === user)
-    .slice(-5)
-    .reverse();
+  const result = await pool.query(
+    "SELECT message FROM memory WHERE username = $1 ORDER BY id DESC LIMIT 5",
+    [user]
+  );
+
+  return result.rows;
 }
 
 /* =========================
