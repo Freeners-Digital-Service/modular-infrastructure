@@ -21,14 +21,21 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-pool.query(`
-CREATE TABLE IF NOT EXISTS memory (
-  id SERIAL PRIMARY KEY,
-  username TEXT,
-  message TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-`);
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS memory (
+        id SERIAL PRIMARY KEY,
+        username TEXT,
+        message TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log("Memory table ready");
+  } catch (err) {
+    console.error("Memory table error:", err);
+  }
+})();
 
 async function saveMemory(user, message) {
   await pool.query(
