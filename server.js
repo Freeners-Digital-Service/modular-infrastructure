@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -52,6 +53,26 @@ async function getMemory(user) {
 
   return result.rows;
 }
+
+/* =========================
+   USERS TABLE
+========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username TEXT UNIQUE,
+        password TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log("Users table ready");
+  } catch (err) {
+    console.error("Users table error:", err);
+  }
+})();
 
 /* =========================
    AUTH LOGIN
