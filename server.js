@@ -21,6 +21,15 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
+pool.query(`
+CREATE TABLE IF NOT EXISTS memory (
+  id SERIAL PRIMARY KEY,
+  username TEXT,
+  message TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`);
+
 async function saveMemory(user, message) {
   await pool.query(
     "INSERT INTO memory (username, message) VALUES ($1, $2)",
