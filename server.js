@@ -92,6 +92,32 @@ app.post("/auth/login", (req, res) => {
 });
 
 /* =========================
+   AUTH REGISTER
+========================= */
+
+app.post("/auth/register", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await pool.query(
+      "INSERT INTO users (username, password) VALUES ($1, $2)",
+      [username, hashedPassword]
+    );
+
+    res.json({
+      message: "User registered successfully"
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: "Registration failed"
+    });
+  }
+});
+
+/* =========================
    ROOT
 ========================= */
 
