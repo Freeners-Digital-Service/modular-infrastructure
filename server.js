@@ -301,7 +301,7 @@ app.post("/api/agent", verifyToken, async (req, res) => {
   try {
 
     const message = req.body.message;
-    const user = req.body.user || "default";
+     const user = req.user;
 
     const agent = agentRouter(message);
 
