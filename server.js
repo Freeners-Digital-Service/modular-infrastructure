@@ -343,6 +343,35 @@ function runSecurityScan() {
 }
 
 /* =========================
+   TOOL EXECUTOR
+========================= */
+
+async function executeTool(toolName) {
+
+  if (toolName === "createCRM") {
+    return createCRM();
+  }
+
+  if (toolName === "automation") {
+    return createAutomationWorkflow();
+  }
+
+  if (toolName === "cloud") {
+    return deployCloudServer();
+  }
+
+  if (toolName === "security") {
+    return runSecurityScan();
+  }
+
+  return {
+    tool: toolName,
+    result: "Tool not implemented yet"
+  };
+
+}
+
+/* =========================
    UNIVERSAL AI AGENT ENGINE
 ========================= */
 
