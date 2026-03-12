@@ -175,6 +175,57 @@ async function finishAgentSession(sessionId) {
 }
 
 /* =========================
+   AGENT TASKS TABLE
+========================= */
+
+(async () => {
+  try {
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS agent_tasks (
+        id SERIAL PRIMARY KEY,
+        session_id INTEGER,
+        task TEXT,
+        status TEXT,
+        result TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Agent tasks table ready");
+
+  } catch (err) {
+
+    console.error("Agent tasks table error:", err);
+
+  }
+})();
+
+/* =========================
+   AGENT TASK ENGINE
+========================= */
+
+async function createTask(sessionId, task) {
+
+  const result = await pool.query(
+    "INSERT INTO agent_tasks (session_id, task, status) VALUES ($1, $2, $3) RETURNING id",
+    [sessionId, task, "pending"]
+  );
+
+  return result.rows[0].id;
+
+}
+
+async function completeTask(taskId, resultText) {
+
+  await pool.query(
+    "UPDATE agent_tasks SET status = $1, result = $2 WHERE id = $3",
+    ["completed", resultText, taskId]
+  );
+
+}
+
+/* =========================
    AUTH LOGIN
 ========================= */
 
