@@ -280,6 +280,24 @@ app.get("/api/webapps", (req, res) => {
 });
 
 /* =========================
+   AGENT LOADER ENGINE
+========================= */
+
+async function loadAgent(agentName) {
+
+  const result = await pool.query(
+    "SELECT * FROM agents WHERE name = $1",
+    [agentName]
+  );
+
+  if (result.rows.length === 0) {
+    return null;
+  }
+
+  return result.rows[0];
+}
+
+/* =========================
    AGENT ROUTER
 ========================= */
 
