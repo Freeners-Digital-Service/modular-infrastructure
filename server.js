@@ -125,6 +125,56 @@ async function getMemory(user) {
 })();
 
 /* =========================
+   AGENT SESSIONS TABLE
+========================= */
+
+(async () => {
+  try {
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS agent_sessions (
+        id SERIAL PRIMARY KEY,
+        username TEXT,
+        agent TEXT,
+        status TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Agent sessions table ready");
+
+  } catch (err) {
+
+    console.error("Agent sessions table error:", err);
+
+  }
+})();
+
+/* =========================
+   AGENT RUNTIME ENGINE
+========================= */
+
+async function startAgentSession(user, agent) {
+
+  const result = await pool.query(
+    "INSERT INTO agent_sessions (username, agent, status) VALUES ($1, $2, $3) RETURNING id",
+    [user, agent, "running"]
+  );
+
+  return result.rows[0].id;
+
+}
+
+async function finishAgentSession(sessionId) {
+
+  await pool.query(
+    "UPDATE agent_sessions SET status = $1 WHERE id = $2",
+    ["completed", sessionId]
+  );
+
+}
+
+/* =========================
    AUTH LOGIN
 ========================= */
 
@@ -460,7 +510,8 @@ app.post("/api/agent", verifyToken, async (req, res) => {
   try {
 
     const message = req.body.message;
-     const user = req.user;
+    const user = req.user;
+    const sessionId = await startAgentSession(user, "multi_agent");
 
     const agents = orchestrateAgents(message);
     const agentConfig = await loadAgent(agent);
