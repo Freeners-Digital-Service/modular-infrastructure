@@ -430,6 +430,7 @@ app.post("/api/agent", verifyToken, async (req, res) => {
      const user = req.user;
 
     const agent = agentRouter(message);
+    const agentConfig = await loadAgent(agent);
 
     await saveMemory(user, message);
 
@@ -456,7 +457,7 @@ app.post("/api/agent", verifyToken, async (req, res) => {
         messages: [
           {
             role: "system",
-            content: `You are the ${agent} for Freener's Digital Services.`
+            content: agentConfig?.system_prompt || `You are the ${agent} for Freener's Digital Services.`
           },
           ...history.map(h => ({
             role: "user",
