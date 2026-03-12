@@ -462,19 +462,34 @@ app.post("/api/agent", verifyToken, async (req, res) => {
     const message = req.body.message;
      const user = req.user;
 
-    const agent = agentRouter(message);
+    const agents = orchestrateAgents(message);
     const agentConfig = await loadAgent(agent);
 
     await saveMemory(user, message);
 
     const history = await getMemory(user);
 
-    let toolResult = null;
+    let toolResults = [];
 
-    if (agent === "crm_agent") toolResult = createCRM();
-    if (agent === "automation_agent") toolResult = createAutomationWorkflow();
-    if (agent === "cloud_agent") toolResult = deployCloudServer();
-    if (agent === "security_agent") toolResult = runSecurityScan();
+for (const agent of agents) {
+
+  if (agent === "crm_agent") {
+    toolResults.push(createCRM());
+  }
+
+  if (agent === "automation_agent") {
+    toolResults.push(createAutomationWorkflow());
+  }
+
+  if (agent === "cloud_agent") {
+    toolResults.push(deployCloudServer());
+  }
+
+  if (agent === "security_agent") {
+    toolResults.push(runSecurityScan());
+  }
+
+}
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
 
@@ -509,7 +524,7 @@ app.post("/api/agent", verifyToken, async (req, res) => {
 
     res.json({
       agent,
-      toolResult,
+      toolResults,
       ai: data
     });
 
