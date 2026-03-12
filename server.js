@@ -419,6 +419,39 @@ async function executeTool(toolName) {
 }
 
 /* =========================
+   MULTI AGENT ORCHESTRATOR
+========================= */
+
+function orchestrateAgents(message) {
+
+  const tasks = [];
+
+  const text = message.toLowerCase();
+
+  if (text.includes("crm")) {
+    tasks.push("crm_agent");
+  }
+
+  if (text.includes("automation")) {
+    tasks.push("automation_agent");
+  }
+
+  if (text.includes("cloud")) {
+    tasks.push("cloud_agent");
+  }
+
+  if (text.includes("security")) {
+    tasks.push("security_agent");
+  }
+
+  if (tasks.length === 0) {
+    tasks.push("general_agent");
+  }
+
+  return tasks;
+}
+
+/* =========================
    UNIVERSAL AI AGENT ENGINE
 ========================= */
 
