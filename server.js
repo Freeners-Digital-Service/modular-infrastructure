@@ -572,6 +572,7 @@ for (const agent of agents) {
     });
 
     const data = await response.json();
+    await finishAgentSession(sessionId);
 
     res.json({
       agent,
