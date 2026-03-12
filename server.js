@@ -111,6 +111,7 @@ async function getMemory(user) {
         id SERIAL PRIMARY KEY,
         name TEXT UNIQUE,
         description TEXT,
+        type TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
@@ -123,6 +124,25 @@ async function getMemory(user) {
 
   }
 })();
+
+/* =========================
+   TOOL ENGINE
+========================= */
+
+async function loadTool(toolName) {
+
+  const result = await pool.query(
+    "SELECT * FROM tools WHERE name = $1",
+    [toolName]
+  );
+
+  if (result.rows.length === 0) {
+    return null;
+  }
+
+  return result.rows[0];
+
+}
 
 /* =========================
    AGENT SESSIONS TABLE
@@ -496,25 +516,34 @@ function runSecurityScan() {
 
 async function executeTool(toolName) {
 
-  if (toolName === "createCRM") {
+  const tool = await loadTool(toolName);
+
+  if (!tool) {
+    return {
+      tool: toolName,
+      result: "Tool not found"
+    };
+  }
+
+  if (tool.name === "createCRM") {
     return createCRM();
   }
 
-  if (toolName === "automation") {
+  if (tool.name === "automation") {
     return createAutomationWorkflow();
   }
 
-  if (toolName === "cloud") {
+  if (tool.name === "cloud") {
     return deployCloudServer();
   }
 
-  if (toolName === "security") {
+  if (tool.name === "security") {
     return runSecurityScan();
   }
 
   return {
     tool: toolName,
-    result: "Tool not implemented yet"
+    result: "Tool execution not implemented"
   };
 
 }
