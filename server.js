@@ -246,6 +246,50 @@ async function completeTask(taskId, resultText) {
 }
 
 /* =========================
+   MARKETPLACE PRODUCTS TABLE
+========================= */
+
+(async () => {
+  try {
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS marketplace_products (
+        id SERIAL PRIMARY KEY,
+        name TEXT UNIQUE,
+        description TEXT,
+        agent TEXT,
+        price NUMERIC,
+        billing_type TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Marketplace products table ready");
+
+  } catch (err) {
+
+    console.error("Marketplace products table error:", err);
+
+  }
+})();
+
+/* =========================
+   MARKETPLACE ENGINE
+========================= */
+
+async function getMarketplaceProducts() {
+
+  const result = await pool.query(
+    "SELECT * FROM marketplace_products ORDER BY id DESC"
+  );
+
+  return result.rows;
+
+}
+
+
+
+/* =========================
    AUTH LOGIN
 ========================= */
 
@@ -398,6 +442,29 @@ app.get("/api/automation", (req, res) => {
 
 app.get("/api/webapps", (req, res) => {
   res.json({ service: "Web Apps", status: "Operational" });
+});
+
+
+/* =========================
+   MARKETPLACE PRODUCTS
+========================= */
+
+app.get("/api/marketplace/products", async (req, res) => {
+
+  try {
+
+    const products = await getMarketplaceProducts();
+
+    res.json(products);
+
+  } catch (error) {
+
+    res.status(500).json({
+      error: "Marketplace fetch failed"
+    });
+
+  }
+
 });
 
 /* =========================
