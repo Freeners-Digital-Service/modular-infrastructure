@@ -280,6 +280,35 @@ app.get("/api/webapps", (req, res) => {
 });
 
 /* =========================
+   ADD AGENT (ADMIN)
+========================= */
+
+app.post("/api/agents", async (req, res) => {
+
+  try {
+
+    const { name, description, system_prompt } = req.body;
+
+    await pool.query(
+      "INSERT INTO agents (name, description, system_prompt) VALUES ($1, $2, $3)",
+      [name, description, system_prompt]
+    );
+
+    res.json({
+      message: "Agent created successfully"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      error: "Agent creation failed"
+    });
+
+  }
+
+});
+
+/* =========================
    AGENT LOADER ENGINE
 ========================= */
 
