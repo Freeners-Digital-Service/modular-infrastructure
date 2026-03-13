@@ -549,6 +549,55 @@ app.get("/api/marketplace/products", async (req, res) => {
 });
 
 /* =========================
+   CHECKOUT ENGINE
+========================= */
+
+app.get("/api/checkout/:product_id", async (req, res) => {
+
+  try {
+
+    const productId = req.params.product_id;
+
+    const result = await pool.query(
+      "SELECT * FROM marketplace_products WHERE id = $1",
+      [productId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Product not found"
+      });
+    }
+
+    const product = result.rows[0];
+
+    const oneTime = product.one_time_price || 0;
+    const monthly = product.monthly_price || 0;
+
+    const firstPayment = oneTime + monthly;
+
+    res.json({
+      product: product.name,
+      type: product.type,
+      one_time_price: oneTime,
+      monthly_price: monthly,
+      first_payment: firstPayment,
+      billing_cycle: "monthly"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      error: "Checkout calculation failed"
+    });
+
+  }
+
+});
+
+
+
+/* =========================
    ADD AGENT (ADMIN)
 ========================= */
 
