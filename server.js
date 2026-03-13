@@ -287,7 +287,88 @@ async function getMarketplaceProducts() {
 
 }
 
+/* =========================
+   SUBSCRIPTIONS TABLE
+========================= */
 
+(async () => {
+  try {
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS subscriptions (
+        id SERIAL PRIMARY KEY,
+        username TEXT,
+        product_id INTEGER,
+        start_date TIMESTAMP,
+        next_billing_date TIMESTAMP,
+        monthly_price NUMERIC,
+        status TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Subscriptions table ready");
+
+  } catch (err) {
+
+    console.error("Subscriptions table error:", err);
+
+  }
+})();
+
+/* =========================
+   SUBSCRIPTION FEATURES TABLE
+========================= */
+
+(async () => {
+  try {
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS subscription_features (
+        id SERIAL PRIMARY KEY,
+        subscription_id INTEGER,
+        feature_name TEXT,
+        price NUMERIC,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Subscription features table ready");
+
+  } catch (err) {
+
+    console.error("Subscription features table error:", err);
+
+  }
+})();
+
+
+/* =========================
+   INVOICES TABLE
+========================= */
+
+(async () => {
+  try {
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS invoices (
+        id SERIAL PRIMARY KEY,
+        subscription_id INTEGER,
+        amount NUMERIC,
+        status TEXT,
+        payment_reference TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Invoices table ready");
+
+  } catch (err) {
+
+    console.error("Invoices table error:", err);
+
+  }
+})();
 
 /* =========================
    AUTH LOGIN
