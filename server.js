@@ -276,6 +276,9 @@ async function completeTask(taskId, resultText) {
 
 (async () => {
   try {
+
+ console.log("Running insert block...");
+
     const result = await pool.query(`
       INSERT INTO marketplace_products 
       (name, description, agent, price, billing_type)
