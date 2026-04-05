@@ -931,6 +931,21 @@ for (const agent of agents) {
 
 });
 
+
+(async () => {
+  try {
+    await pool.query(`
+      INSERT INTO products (name, price, type)
+      VALUES ('Test Agent', 300, 'subscription')
+      ON CONFLICT DO NOTHING;
+    `);
+
+    console.log("Test product inserted");
+  } catch (err) {
+    console.error("Product insert error:", err);
+  }
+})();
+
 /* =========================
    SERVER
 ========================= */
