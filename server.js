@@ -273,6 +273,24 @@ async function completeTask(taskId, resultText) {
   }
 })();
 
+
+(async () => {
+  try {
+    const result = await pool.query(`
+      INSERT INTO marketplace_products 
+      (name, description, agent, price, billing_type)
+      VALUES 
+      ('AI CRM Agent', 'CRM automation system', 'crm_agent', 300, 'monthly')
+      RETURNING *;
+    `);
+
+    console.log("Inserted product:", result.rows[0]);
+
+  } catch (err) {
+    console.error("Insert error:", err);
+  }
+})();
+
 /* =========================
    MARKETPLACE ENGINE
 ========================= */
