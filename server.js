@@ -595,6 +595,70 @@ app.get("/api/checkout/:product_id", async (req, res) => {
 
 });
 
+/* =========================
+   PAYMENT ENGINE (FLUTTERWAVE)
+========================= */
+
+app.post("/api/pay", verifyToken, async (req, res) => {
+
+  try {
+
+    const { product_id } = req.body;
+
+    const result = await pool.query(
+      "SELECT * FROM marketplace_products WHERE id = $1",
+      [product_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    const product = result.rows[0];
+
+    const amount =
+      (product.one_time_price || 0) +
+      (product.monthly_price || 0);
+
+    const response = await fetch(
+      "https://api.flutterwave.com/v3/payments",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          tx_ref: "freener_" + Date.now(),
+          amount: amount,
+          currency: "USD",
+          redirect_url: "https://yourwebsite.com/payment-success",
+          customer: {
+            email: "client@email.com",
+            name: req.user
+          },
+          customizations: {
+            title: product.name,
+            description: "Platform purchase"
+          }
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    res.json(data);
+
+  } catch (error) {
+
+    res.status(500).json({
+      error: "Payment initialization failed"
+    });
+
+  }
+
+});
+
 
 
 /* =========================
