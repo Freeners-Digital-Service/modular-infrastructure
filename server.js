@@ -651,7 +651,7 @@ app.post("/api/pay", async (req, res) => {
           tx_ref: "freener_" + Date.now(),
           amount: amount,
           currency: "USD",
-          redirect_url: "https://yourwebsite.com/payment-success",
+          redirect_url: "http://localhost:5500/payment-success.html",
           customer: {
             email: "test@email.com",
             name: "Test User"
@@ -671,6 +671,48 @@ app.post("/api/pay", async (req, res) => {
   } catch (error) {
     res.status(500).json({
       error: "Payment initialization failed"
+    });
+  }
+});
+
+
+
+app.get("/api/verify-payment", async (req, res) => {
+  try {
+    const { transaction_id } = req.query;
+
+    if (!transaction_id) {
+      return res.status(400).json({ error: "Missing transaction_id" });
+    }
+
+    const response = await fetch(
+      `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.status === "success" && data.data.status === "successful") {
+      return res.json({
+        success: true,
+        message: "Payment verified",
+        data: data.data
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: "Payment not successful"
+      });
+    }
+
+  } catch (error) {
+    res.status(500).json({
+      error: "Verification failed"
     });
   }
 });
