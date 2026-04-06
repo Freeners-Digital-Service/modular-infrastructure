@@ -618,6 +618,7 @@ app.get("/api/checkout/:product_id", async (req, res) => {
 
 });
 
+
 /* =========================
    PAYMENT ENGINE (FLUTTERWAVE)
 ========================= */
@@ -637,7 +638,7 @@ app.post("/api/pay", async (req, res) => {
 
     const product = result.rows[0];
 
-    const amount = product.price;
+    const tx_ref = "freener_" + Date.now();
 
     const response = await fetch(
       "https://api.flutterwave.com/v3/payments",
@@ -648,14 +649,18 @@ app.post("/api/pay", async (req, res) => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          tx_ref: "freener_" + Date.now(),
-          amount: amount,
+          tx_ref: tx_ref,
+          amount: product.price,
           currency: "USD",
-          redirect_url: "http://localhost:5500/payment-success.html",
+
+          // ✅ FIXED (you had double quotes error)
+          redirect_url: "https://modular-infrastructure.onrender.com/payment-success",
+
           customer: {
             email: "test@email.com",
             name: "Test User"
           },
+
           customizations: {
             title: product.name,
             description: "Platform purchase"
@@ -665,16 +670,15 @@ app.post("/api/pay", async (req, res) => {
     );
 
     const data = await response.json();
-
     res.json(data);
 
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       error: "Payment initialization failed"
     });
   }
 });
-
 
 
 app.get("/api/verify-payment", async (req, res) => {
@@ -700,21 +704,46 @@ app.get("/api/verify-payment", async (req, res) => {
     if (data.status === "success" && data.data.status === "successful") {
       return res.json({
         success: true,
-        message: "Payment verified",
         data: data.data
       });
     } else {
       return res.json({
-        success: false,
-        message: "Payment not successful"
+        success: false
       });
     }
 
   } catch (error) {
+    console.error(error);
     res.status(500).json({
-      error: "Verification failed"
+      success: false
     });
   }
+});
+
+
+
+app.get("/payment-success", (req, res) => {
+  res.send(`
+    <h2>Verifying payment...</h2>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const transaction_id = params.get("transaction_id");
+
+      fetch("https://modular-infrastructure.onrender.com/api/verify-payment?transaction_id=" + transaction_id)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            document.body.innerHTML = "<h2>✅ Payment Successful</h2>";
+          } else {
+            document.body.innerHTML = "<h2>❌ Payment Failed</h2>";
+          }
+        })
+        .catch(() => {
+          document.body.innerHTML = "<h2>⚠️ Verification error</h2>";
+        });
+    </script>
+  `);
 });
 
 /* =========================
