@@ -622,10 +622,8 @@ app.get("/api/checkout/:product_id", async (req, res) => {
    PAYMENT ENGINE (FLUTTERWAVE)
 ========================= */
 
-app.post("/api/pay", verifyToken, async (req, res) => {
-
+app.post("/api/pay", async (req, res) => {
   try {
-
     const { product_id } = req.body;
 
     const result = await pool.query(
@@ -639,9 +637,7 @@ app.post("/api/pay", verifyToken, async (req, res) => {
 
     const product = result.rows[0];
 
-    const amount =
-      (product.one_time_price || 0) +
-      (product.monthly_price || 0);
+    const amount = product.price;
 
     const response = await fetch(
       "https://api.flutterwave.com/v3/payments",
@@ -657,8 +653,8 @@ app.post("/api/pay", verifyToken, async (req, res) => {
           currency: "USD",
           redirect_url: "https://yourwebsite.com/payment-success",
           customer: {
-            email: "client@email.com",
-            name: req.user
+            email: "test@email.com",
+            name: "Test User"
           },
           customizations: {
             title: product.name,
@@ -673,44 +669,10 @@ app.post("/api/pay", verifyToken, async (req, res) => {
     res.json(data);
 
   } catch (error) {
-
     res.status(500).json({
       error: "Payment initialization failed"
     });
-
   }
-
-});
-
-
-
-/* =========================
-   ADD AGENT (ADMIN)
-========================= */
-
-app.post("/api/agents", async (req, res) => {
-
-  try {
-
-    const { name, description, system_prompt } = req.body;
-
-    await pool.query(
-      "INSERT INTO agents (name, description, system_prompt) VALUES ($1, $2, $3)",
-      [name, description, system_prompt]
-    );
-
-    res.json({
-      message: "Agent created successfully"
-    });
-
-  } catch (error) {
-
-    res.status(500).json({
-      error: "Agent creation failed"
-    });
-
-  }
-
 });
 
 /* =========================
