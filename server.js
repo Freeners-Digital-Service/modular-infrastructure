@@ -550,6 +550,27 @@ app.get("/api/marketplace/products", async (req, res) => {
 
 });
 
+
+app.post("/api/create-product", async (req, res) => {
+  try {
+    const { name, description, agent, price, billing_type } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO marketplace_products 
+      (name, description, agent, price, billing_type)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *`,
+      [name, description, agent, price, billing_type]
+    );
+
+    res.json(result.rows[0]);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Product creation failed" });
+  }
+});
+
 /* =========================
    CHECKOUT ENGINE
 ========================= */
