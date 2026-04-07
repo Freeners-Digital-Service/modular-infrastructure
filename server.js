@@ -372,6 +372,108 @@ async function getMarketplaceProducts() {
   }
 })();
 
+
+/*=================== 
+  PURCHASES TABLE
+================== */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS purchases (
+        id SERIAL PRIMARY KEY,
+        username TEXT,
+        product_id INTEGER,
+        transaction_id TEXT,
+        amount NUMERIC,
+        status TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Purchases table ready");
+
+  } catch (err) {
+    console.error("Purchases table error:", err);
+  }
+})();
+
+
+/*===========
+  API ROUTE
+  ========= */
+
+app.post("/api/purchase", verifyToken, async (req, res) => {
+  try {
+    const { transaction_id, product_id } = req.body;
+    const user = req.user;
+
+    // 🔍 Verify payment again (security)
+    const verifyRes = await fetch(
+      `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`
+        }
+      }
+    );
+
+    const verifyData = await verifyRes.json();
+
+    if (
+      verifyData.status !== "success" ||
+      verifyData.data.status !== "successful"
+    ) {
+      return res.status(400).json({ error: "Payment not verified" });
+    }
+
+    const amount = verifyData.data.amount;
+
+    // 💾 Save to DB
+    await pool.query(
+      `INSERT INTO purchases 
+      (username, product_id, transaction_id, amount, status)
+      VALUES ($1, $2, $3, $4, $5)`,
+      [user, product_id, transaction_id, amount, "active"]
+    );
+
+    res.json({
+      message: "Purchase saved successfully"
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Purchase saving failed"
+    });
+  }
+});
+
+
+/*========
+API USER
+======== */
+
+app.get("/api/user/purchases", verifyToken, async (req, res) => {
+  try {
+    const user = req.user;
+
+    const result = await pool.query(
+      "SELECT * FROM purchases WHERE username = $1 ORDER BY id DESC",
+      [user]
+    );
+
+    res.json(result.rows);
+
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to fetch purchases"
+    });
+  }
+});
+
+
 /* =========================
    AUTH LOGIN
 ========================= */
