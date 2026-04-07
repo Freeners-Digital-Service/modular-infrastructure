@@ -832,18 +832,42 @@ app.get("/payment-success", (req, res) => {
       const params = new URLSearchParams(window.location.search);
       const transaction_id = params.get("transaction_id");
 
-      fetch("https://modular-infrastructure.onrender.com/api/verify-payment?transaction_id=" + transaction_id)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            document.body.innerHTML = "<h2>✅ Payment Successful</h2>";
-          } else {
-            document.body.innerHTML = "<h2>❌ Payment Failed</h2>";
-          }
-        })
-        .catch(() => {
-          document.body.innerHTML = "<h2>⚠️ Verification error</h2>";
-        });
+      // ⚠️ get token from browser (saved after login)
+      const token = localStorage.getItem("token");
+
+    
+
+        // 1️⃣ Verify payment
+        fetch("https://modular-infrastructure.onrender.com/api/verify-payment?transaction_id=" + transaction_id)
+          .then(res => res.json())
+          .then(data => {
+
+            if (data.success) {
+
+              // 2️⃣ Save purchase
+              fetch("https://modular-infrastructure.onrender.com/api/purchase", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify({
+                  transaction_id: transaction_id,
+                  product_id: 1
+                })
+              })
+              .then(res => res.json())
+              .then(() => {
+                document.body.innerHTML = "<h2>✅ Payment Successful & Saved</h2>";
+              });
+
+            } else {
+              document.body.innerHTML = "<h2>❌ Payment Failed</h2>";
+            }
+
+          });
+
+      }
     </script>
   `);
 });
