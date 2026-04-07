@@ -832,42 +832,45 @@ app.get("/payment-success", (req, res) => {
       const params = new URLSearchParams(window.location.search);
       const transaction_id = params.get("transaction_id");
 
-      // ⚠️ get token from browser (saved after login)
-      const token = localStorage.getItem("token");
+      console.log("Transaction ID:", transaction_id);
 
-    
+      fetch("https://modular-infrastructure.onrender.com/api/verify-payment?transaction_id=" + transaction_id)
+        .then(res => res.json())
+        .then(data => {
 
-        // 1️⃣ Verify payment
-        fetch("https://modular-infrastructure.onrender.com/api/verify-payment?transaction_id=" + transaction_id)
-          .then(res => res.json())
-          .then(data => {
+          console.log("VERIFY RESPONSE:", data);
 
-            if (data.success) {
+          if (data.success) {
 
-              // 2️⃣ Save purchase
-              fetch("https://modular-infrastructure.onrender.com/api/purchase", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": "Bearer " + token
-                },
-                body: JSON.stringify({
-                  transaction_id: transaction_id,
-                  product_id: 1
-                })
+            fetch("https://modular-infrastructure.onrender.com/api/purchase", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                transaction_id: transaction_id,
+                product_id: 1
               })
-              .then(res => res.json())
-              .then(() => {
-                document.body.innerHTML = "<h2>✅ Payment Successful & Saved</h2>";
-              });
+            })
+            .then(res => res.json())
+            .then(purchase => {
+              console.log("PURCHASE:", purchase);
+              document.body.innerHTML = "<h2>✅ Payment Successful & Saved</h2>";
+            })
+            .catch(err => {
+              console.error("Purchase error:", err);
+              document.body.innerHTML = "<h2>⚠️ Payment OK but save failed</h2>";
+            });
 
-            } else {
-              document.body.innerHTML = "<h2>❌ Payment Failed</h2>";
-            }
+          } else {
+            document.body.innerHTML = "<h2>❌ Payment Failed</h2>";
+          }
 
-          });
-
-      }
+        })
+        .catch(err => {
+          console.error("Verify error:", err);
+          document.body.innerHTML = "<h2>⚠️ Verification failed</h2>";
+        });
     </script>
   `);
 });
