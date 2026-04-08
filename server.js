@@ -560,42 +560,51 @@ app.get("/api/webapps", (req, res) => {
    MARKETPLACE PRODUCTS
 ========================= */
 
+// GET ALL PRODUCTS
 app.get("/api/marketplace/products", async (req, res) => {
-
   try {
+    const result = await pool.query(
+      "SELECT * FROM marketplace_products ORDER BY id ASC"
+    );
 
-    const products = await getMarketplaceProducts();
-
-    res.json(products);
+    res.json(result.rows);
 
   } catch (error) {
-
+    console.error(error);
     res.status(500).json({
       error: "Marketplace fetch failed"
     });
-
   }
-
 });
 
 
+// CREATE PRODUCT
 app.post("/api/create-product", async (req, res) => {
   try {
-    const { name, description, agent, price, billing_type } = req.body;
+    const {
+      name,
+      description,
+      agent,
+      price,
+      setup_fee,
+      billing_type
+    } = req.body;
 
     const result = await pool.query(
       `INSERT INTO marketplace_products 
-      (name, description, agent, price, billing_type)
-      VALUES ($1, $2, $3, $4, $5)
+      (name, description, agent, price, setup_fee, billing_type)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *`,
-      [name, description, agent, price, billing_type]
+      [name, description, agent, price, setup_fee, billing_type]
     );
 
     res.json(result.rows[0]);
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Product creation failed" });
+    res.status(500).json({
+      error: "Product creation failed"
+    });
   }
 });
 
