@@ -399,84 +399,6 @@ async function getMarketplaceProducts() {
 })();
 
 
-/*===========
-  API ROUTE
-  ========= */
-
-app.post("/api/purchase", verifyToken, async (req, res) => {
-  try {
-    const { transaction_id, product_id } = req.body;
-
-    // ✅ FIX: safe user handling
-    const user = req.user || {};
-    const username = user.username || "test_user";
-
-    // 🔐 Verify payment (security)
-    const verifyRes = await fetch(
-      `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`
-        }
-      }
-    );
-
-    const verifyData = await verifyRes.json();
-
-    if (
-      verifyData.status !== "success" ||
-      verifyData.data.status !== "successful"
-    ) {
-      return res.status(400).json({ error: "Payment not verified" });
-    }
-
-    const amount = verifyData.data.amount;
-
-    // 💾 Save to DB
-    await pool.query(
-      `INSERT INTO purchases 
-      (username, product_id, transaction_id, amount, status)
-      VALUES ($1, $2, $3, $4, $5)`,
-      [username, product_id, transaction_id, amount, "active"]
-    );
-
-    res.json({
-      success: true,
-      message: "Purchase saved successfully"
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      error: "Purchase saving failed"
-    });
-  }
-});
-
-/*========
-API USER
-======== */
-
-app.get("/api/user/purchases", verifyToken, async (req, res) => {
-  try {
-    // ✅ FIX: safe user handling
-    const user = req.user || {};
-    const username = user.username || "test_user";
-
-    const result = await pool.query(
-      "SELECT * FROM purchases WHERE username = $1 ORDER BY id DESC",
-      [username]
-    );
-
-    res.json(result.rows);
-
-  } catch (error) {
-    res.status(500).json({
-      error: "Failed to fetch purchases"
-    });
-  }
-});
 
 /* =========================
    AUTH LOGIN
@@ -744,7 +666,8 @@ app.post("/api/pay", async (req, res) => {
 
     const product = result.rows[0];
 
-    const tx_ref = "freener_" + Date.now();
+    // ✅ FIX: declare tx_ref properly
+    const tx_ref = "freener_" + product_id + "_" + Date.now();
 
     const response = await fetch(
       "https://api.flutterwave.com/v3/payments",
@@ -758,15 +681,11 @@ app.post("/api/pay", async (req, res) => {
           tx_ref: tx_ref,
           amount: product.price,
           currency: "USD",
-
-          // ✅ FIXED (you had double quotes error)
           redirect_url: "https://modular-infrastructure.onrender.com/payment-success",
-
           customer: {
             email: "test@email.com",
             name: "Test User"
           },
-
           customizations: {
             title: product.name,
             description: "Platform purchase"
@@ -834,50 +753,140 @@ app.get("/payment-success", (req, res) => {
 
     <script>
       const params = new URLSearchParams(window.location.search);
+
       const transaction_id = params.get("transaction_id");
+      const tx_ref = params.get("tx_ref");
 
-      console.log("Transaction ID:", transaction_id);
+      // ✅ extract product_id from tx_ref
+      const product_id = tx_ref ? tx_ref.split("_")[1] : null;
 
-      fetch("https://modular-infrastructure.onrender.com/api/verify-payment?transaction_id=" + transaction_id)
-        .then(res => res.json())
-        .then(data => {
+      console.log("TX:", transaction_id);
+      console.log("PRODUCT:", product_id);
 
-          console.log("VERIFY RESPONSE:", data);
+      if (!transaction_id) {
+        document.body.innerHTML = "<h2>❌ No transaction ID</h2>";
+      } else {
 
-          if (data.success) {
+        fetch("https://modular-infrastructure.onrender.com/api/verify-payment?transaction_id=" + transaction_id)
+          .then(res => res.json())
+          .then(data => {
 
-            fetch("https://modular-infrastructure.onrender.com/api/purchase", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                transaction_id: transaction_id,
-                product_id: 1
+            if (data.success) {
+
+              // ✅ SAVE PURCHASE
+              fetch("https://modular-infrastructure.onrender.com/api/purchase", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  transaction_id: transaction_id,
+                  product_id: product_id
+                })
               })
-            })
-            .then(res => res.json())
-            .then(purchase => {
-              console.log("PURCHASE:", purchase);
-              document.body.innerHTML = "<h2>✅ Payment Successful & Saved</h2>";
-            })
-            .catch(err => {
-              console.error("Purchase error:", err);
-              document.body.innerHTML = "<h2>⚠️ Payment OK but save failed</h2>";
-            });
+              .then(res => res.json())
+              .then(() => {
+                document.body.innerHTML = "<h2>✅ Payment Successful & System Activated</h2>";
+              })
+              .catch(() => {
+                document.body.innerHTML = "<h2>⚠️ Payment OK but save failed</h2>";
+              });
 
-          } else {
-            document.body.innerHTML = "<h2>❌ Payment Failed</h2>";
-          }
+            } else {
+              document.body.innerHTML = "<h2>❌ Payment Failed</h2>";
+            }
 
-        })
-        .catch(err => {
-          console.error("Verify error:", err);
-          document.body.innerHTML = "<h2>⚠️ Verification failed</h2>";
-        });
+          })
+          .catch(() => {
+            document.body.innerHTML = "<h2>⚠️ Verification failed</h2>";
+          });
+      }
     </script>
   `);
 });
+
+
+/*===========
+  API ROUTE
+  ========= */
+
+app.post("/api/purchase", async (req, res) => {
+  try {
+    const { transaction_id, product_id } = req.body;
+
+    // ✅ FIX: safe user handling
+    const user = req.user || {};
+    const username = user.username || "test_user";
+
+    // 🔐 Verify payment (security)
+    const verifyRes = await fetch(
+      `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`
+        }
+      }
+    );
+
+    const verifyData = await verifyRes.json();
+
+    if (
+      verifyData.status !== "success" ||
+      verifyData.data.status !== "successful"
+    ) {
+      return res.status(400).json({ error: "Payment not verified" });
+    }
+
+    const amount = verifyData.data.amount;
+
+    // 💾 Save to DB
+    await pool.query(
+      `INSERT INTO purchases 
+      (username, product_id, transaction_id, amount, status)
+      VALUES ($1, $2, $3, $4, $5)`,
+      [username, product_id, transaction_id, amount, "active"]
+    );
+
+    res.json({
+      success: true,
+      message: "Purchase saved successfully"
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Purchase saving failed"
+    });
+  }
+});
+
+/*========
+API USER
+======== */
+
+app.get("/api/user/purchases", verifyToken, async (req, res) => {
+  try {
+    // ✅ FIX: safe user handling
+    const user = req.user || {};
+    const username = user.username || "test_user";
+
+    const result = await pool.query(
+      "SELECT * FROM purchases WHERE username = $1 ORDER BY id DESC",
+      [username]
+    );
+
+    res.json(result.rows);
+
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to fetch purchases"
+    });
+  }
+});
+
+
+
 
 /* =========================
    AGENT LOADER ENGINE
