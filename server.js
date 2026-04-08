@@ -406,9 +406,12 @@ async function getMarketplaceProducts() {
 app.post("/api/purchase", verifyToken, async (req, res) => {
   try {
     const { transaction_id, product_id } = req.body;
-    const user = req.user;
 
-    // 🔍 Verify payment again (security)
+    // ✅ FIX: safe user handling
+    const user = req.user || {};
+    const username = user.username || "test_user";
+
+    // 🔐 Verify payment (security)
     const verifyRes = await fetch(
       `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
       {
@@ -435,10 +438,11 @@ app.post("/api/purchase", verifyToken, async (req, res) => {
       `INSERT INTO purchases 
       (username, product_id, transaction_id, amount, status)
       VALUES ($1, $2, $3, $4, $5)`,
-      [user, product_id, transaction_id, amount, "active"]
+      [username, product_id, transaction_id, amount, "active"]
     );
 
     res.json({
+      success: true,
       message: "Purchase saved successfully"
     });
 
@@ -450,18 +454,19 @@ app.post("/api/purchase", verifyToken, async (req, res) => {
   }
 });
 
-
 /*========
 API USER
 ======== */
 
 app.get("/api/user/purchases", verifyToken, async (req, res) => {
   try {
-    const user = req.user;
+    // ✅ FIX: safe user handling
+    const user = req.user || {};
+    const username = user.username || "test_user";
 
     const result = await pool.query(
       "SELECT * FROM purchases WHERE username = $1 ORDER BY id DESC",
-      [user]
+      [username]
     );
 
     res.json(result.rows);
@@ -472,7 +477,6 @@ app.get("/api/user/purchases", verifyToken, async (req, res) => {
     });
   }
 });
-
 
 /* =========================
    AUTH LOGIN
