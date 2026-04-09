@@ -400,6 +400,33 @@ async function getMarketplaceProducts() {
 })();
 
 
+/* =========================
+   SETUP TABLE
+========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS setups (
+        id SERIAL PRIMARY KEY,
+        product_id INTEGER,
+        email TEXT,
+        password TEXT,
+        data JSONB,
+        step INTEGER DEFAULT 1,
+        status TEXT DEFAULT 'draft',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(product_id, email)
+      );
+    `);
+
+    console.log("Setup table ready");
+
+  } catch (err) {
+    console.error("Setup table error:", err);
+  }
+})();
+
 
 /* =========================
    AUTH LOGIN
@@ -873,6 +900,104 @@ app.get("/api/user/purchases", verifyToken, async (req, res) => {
     });
   }
 });
+
+
+/* =========================
+   SAVE SETUP (AUTO SAVE)
+========================= */
+
+app.post("/api/setup/save", async (req, res) => {
+  try {
+    const { product_id, email, password, data, step } = req.body;
+
+    const existing = await pool.query(
+      "SELECT * FROM setups WHERE product_id = $1 AND email = $2",
+      [product_id, email]
+    );
+
+    if (existing.rows.length > 0) {
+
+      await pool.query(
+        `UPDATE setups 
+         SET data = $1, step = $2 
+         WHERE product_id = $3 AND email = $4`,
+        [data, step, product_id, email]
+      );
+
+    } else {
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      await pool.query(
+        `INSERT INTO setups 
+         (product_id, email, password, data, step)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [product_id, email, hashedPassword, data, step]
+      );
+
+    }
+
+    res.json({ success: true });
+
+  } catch (err) {
+    res.status(500).json({ error: "Save failed" });
+  }
+});
+
+
+/* =========================
+   LOAD SETUP
+========================= */
+
+app.get("/api/setup/load", async (req, res) => {
+  try {
+    const { product_id, email } = req.query;
+
+    const result = await pool.query(
+      "SELECT * FROM setups WHERE product_id = $1 AND email = $2",
+      [product_id, email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ found: false });
+    }
+
+    res.json({
+      found: true,
+      data: result.rows[0].data,
+      step: result.rows[0].step,
+      status: result.rows[0].status
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: "Load failed" });
+  }
+});
+
+
+/* =========================
+   SUBMIT SETUP
+========================= */
+
+app.post("/api/setup/submit", async (req, res) => {
+  try {
+    const { product_id, email } = req.body;
+
+    await pool.query(
+      `UPDATE setups 
+       SET status = 'submitted', step = 999
+       WHERE product_id = $1 AND email = $2`,
+      [product_id, email]
+    );
+
+    res.json({ success: true });
+
+  } catch (err) {
+    res.status(500).json({ error: "Submit failed" });
+  }
+});
+
+
 
 
 
