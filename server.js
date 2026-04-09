@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const products = require("./products/products");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -557,18 +558,17 @@ app.get("/api/webapps", (req, res) => {
 
 
 /* =========================
-   MARKETPLACE PRODUCTS
+   MARKETPLACE PRODUCTS (FILE-BASED)
 ========================= */
 
-// GET ALL PRODUCTS
-app.get("/api/marketplace/products", async (req, res) => {
+// 📦 Load products from file
+const products = require("./products/products");
+
+
+// ✅ GET ALL PRODUCTS
+app.get("/api/marketplace/products", (req, res) => {
   try {
-    const result = await pool.query(
-      "SELECT * FROM marketplace_products ORDER BY id ASC"
-    );
-
-    res.json(result.rows);
-
+    res.json(products);
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -578,35 +578,15 @@ app.get("/api/marketplace/products", async (req, res) => {
 });
 
 
-// CREATE PRODUCT
-app.post("/api/create-product", async (req, res) => {
-  try {
-    const {
-      name,
-      description,
-      agent,
-      price,
-      setup_fee,
-      billing_type
-    } = req.body;
+// ❌ CREATE PRODUCT (DISABLED — now managed via file)
+// (We don't insert products into DB anymore)
 
-    const result = await pool.query(
-      `INSERT INTO marketplace_products 
-      (name, description, agent, price, setup_fee, billing_type)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING *`,
-      [name, description, agent, price, setup_fee, billing_type]
-    );
-
-    res.json(result.rows[0]);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      error: "Product creation failed"
-    });
-  }
+app.post("/api/create-product", (req, res) => {
+  res.status(400).json({
+    error: "Product creation disabled. Use products.js file instead."
+  });
 });
+
 
 /* =========================
    CHECKOUT ENGINE
@@ -664,19 +644,19 @@ app.post("/api/pay", async (req, res) => {
   try {
     const { product_id } = req.body;
 
-    const result = await pool.query(
-      "SELECT * FROM marketplace_products WHERE id = $1",
-      [product_id]
-    );
+    // ✅ Get product from products.js
+    const product = products.find(p => p.id == product_id);
 
-    if (result.rows.length === 0) {
+    if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    const product = result.rows[0];
-
-    // ✅ FIX: declare tx_ref properly
+    // ✅ Generate tx_ref (includes product_id)
     const tx_ref = "freener_" + product_id + "_" + Date.now();
+
+    // ✅ Calculate total (setup + first month)
+    const amount =
+      product.pricing.setup_fee + product.pricing.monthly;
 
     const response = await fetch(
       "https://api.flutterwave.com/v3/payments",
@@ -688,16 +668,19 @@ app.post("/api/pay", async (req, res) => {
         },
         body: JSON.stringify({
           tx_ref: tx_ref,
-          amount: product.price,
+          amount: amount,
           currency: "USD",
-          redirect_url: "https://modular-infrastructure.onrender.com/payment-success",
+          redirect_url:
+            "https://modular-infrastructure.onrender.com/payment-success",
+
           customer: {
             email: "test@email.com",
             name: "Test User"
           },
+
           customizations: {
             title: product.name,
-            description: "Platform purchase"
+            description: product.description
           }
         })
       }
