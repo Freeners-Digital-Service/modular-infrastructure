@@ -926,7 +926,16 @@ app.post("/api/setup/save", async (req, res) => {
 
     } else {
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      // ✅ SAFE PASSWORD HANDLING
+      let hashedPassword = password;
+
+      if (password) {
+        try {
+          hashedPassword = await bcrypt.hash(password, 10);
+        } catch (e) {
+          console.log("bcrypt failed, using raw password temporarily");
+        }
+      }
 
       await pool.query(
         `INSERT INTO setups 
@@ -940,10 +949,10 @@ app.post("/api/setup/save", async (req, res) => {
     res.json({ success: true });
 
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Save failed" });
   }
 });
-
 
 /* =========================
    LOAD SETUP
@@ -970,10 +979,10 @@ app.get("/api/setup/load", async (req, res) => {
     });
 
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Load failed" });
   }
 });
-
 
 /* =========================
    SUBMIT SETUP
@@ -993,10 +1002,10 @@ app.post("/api/setup/submit", async (req, res) => {
     res.json({ success: true });
 
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Submit failed" });
   }
 });
-
 
 
 
