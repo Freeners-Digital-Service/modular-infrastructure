@@ -561,9 +561,6 @@ app.get("/api/webapps", (req, res) => {
    MARKETPLACE PRODUCTS (FILE-BASED)
 ========================= */
 
-// 📦 Load products from file
-const products = require("./products/products");
-
 
 // ✅ GET ALL PRODUCTS
 app.get("/api/marketplace/products", (req, res) => {
