@@ -772,28 +772,38 @@ app.get("/payment-success", (req, res) => {
 
       const transaction_id = params.get("transaction_id");
       const tx_ref = params.get("tx_ref");
+      const status = params.get("status");
 
       const product_id = tx_ref ? tx_ref.split("_")[1] : null;
 
       async function processPayment() {
 
+        // ✅ CASE 1: Provider only returns success
+        if (status === "success" && !transaction_id) {
+          document.body.innerHTML = \`
+            <div style="text-align:center; margin-top:50px;">
+              <h2>✅ Payment Successful</h2>
+              <p>Your system is ready to configure</p>
+
+              <br><br>
+
+              <button onclick="window.location.href='/setup.html?id=\${product_id || ""}'">
+                Proceed to Setup
+              </button>
+            </div>
+          \`;
+          return;
+        }
+
+        // ❌ No data at all
         if (!transaction_id) {
-          document.body.innerHTML = "<h2>❌ No transaction ID</h2>";
+          document.body.innerHTML = "<h2>❌ Missing transaction data</h2>";
           return;
         }
 
         try {
 
-          // ⏱ timeout protection
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 10000);
-
-          const verifyRes = await fetch("/api/verify-payment?transaction_id=" + transaction_id, {
-            signal: controller.signal
-          });
-
-          clearTimeout(timeout);
-
+          const verifyRes = await fetch("/api/verify-payment?transaction_id=" + transaction_id);
           const verifyData = await verifyRes.json();
 
           if (!verifyData.success) {
@@ -802,7 +812,6 @@ app.get("/payment-success", (req, res) => {
             return;
           }
 
-          // ✅ SAVE PURCHASE
           await fetch("/api/purchase", {
             method: "POST",
             headers: {
@@ -814,7 +823,6 @@ app.get("/payment-success", (req, res) => {
             })
           });
 
-          // ✅ SHOW BUTTON
           document.body.innerHTML = \`
             <div style="text-align:center; margin-top:50px;">
               <h2>✅ Payment Successful</h2>
@@ -830,17 +838,13 @@ app.get("/payment-success", (req, res) => {
 
         } catch (err) {
 
-          console.error("ERROR:", err);
-
-          // ✅ NEVER STUCK AGAIN
           document.body.innerHTML = \`
             <div style="text-align:center; margin-top:50px;">
               <h2>⚠️ Payment received</h2>
-              <p>We couldn't verify automatically.</p>
 
               <br><br>
 
-              <button onclick="window.location.href='/setup.html?id=\${product_id}'">
+              <button onclick="window.location.href='/setup.html?id=\${product_id || ""}'">
                 Continue Setup
               </button>
             </div>
