@@ -19,6 +19,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static("Freeners Digital Services"));
 
 /* =========================
    POSTGRES MEMORY
