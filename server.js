@@ -773,11 +773,7 @@ app.get("/payment-success", (req, res) => {
       const transaction_id = params.get("transaction_id");
       const tx_ref = params.get("tx_ref");
 
-      // ✅ extract product_id safely
       const product_id = tx_ref ? tx_ref.split("_")[1] : null;
-
-      console.log("TX:", transaction_id);
-      console.log("PRODUCT:", product_id);
 
       async function processPayment() {
 
@@ -788,29 +784,37 @@ app.get("/payment-success", (req, res) => {
 
         try {
 
-          // ✅ VERIFY
-          const verifyRes = await fetch("https://modular-infrastructure.onrender.com/api/verify-payment?transaction_id=" + transaction_id);
+          // ⏱ timeout protection
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 10000);
+
+          const verifyRes = await fetch("/api/verify-payment?transaction_id=" + transaction_id, {
+            signal: controller.signal
+          });
+
+          clearTimeout(timeout);
+
           const verifyData = await verifyRes.json();
 
           if (!verifyData.success) {
             document.body.innerHTML = "<h2>❌ Payment Failed</h2>
-<p>Please try again or contact support</p>;
+            <p>Please try again or contact support</p>";
             return;
           }
 
           // ✅ SAVE PURCHASE
-          await fetch("https://modular-infrastructure.onrender.com/api/purchase", {
+          await fetch("/api/purchase", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              transaction_id: transaction_id,
-              product_id: product_id
+              transaction_id,
+              product_id
             })
           });
 
-          // ✅ SHOW BUTTON (MAIN FIX)
+          // ✅ SHOW BUTTON
           document.body.innerHTML = \`
             <div style="text-align:center; margin-top:50px;">
               <h2>✅ Payment Successful</h2>
@@ -825,13 +829,14 @@ app.get("/payment-success", (req, res) => {
           \`;
 
         } catch (err) {
-          console.error(err);
 
-          // ✅ fallback (never hang)
+          console.error("ERROR:", err);
+
+          // ✅ NEVER STUCK AGAIN
           document.body.innerHTML = \`
             <div style="text-align:center; margin-top:50px;">
-              <h2>⚠️ Payment processed</h2>
-              <p>Click below to continue setup</p>
+              <h2>⚠️ Payment received</h2>
+              <p>We couldn't verify automatically.</p>
 
               <br><br>
 
@@ -840,6 +845,7 @@ app.get("/payment-success", (req, res) => {
               </button>
             </div>
           \`;
+
         }
 
       }
