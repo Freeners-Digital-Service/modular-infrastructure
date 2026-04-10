@@ -774,81 +774,83 @@ app.get("/payment-success", (req, res) => {
       const tx_ref = params.get("tx_ref");
       const status = params.get("status");
 
-      const product_id = tx_ref ? tx_ref.split("_")[1] : null;
+      let product_id = "";
+      if (tx_ref) {
+        const parts = tx_ref.split("_");
+        product_id = parts[1] || "";
+      }
 
       async function processPayment() {
 
-        // ✅ CASE 1: Provider only returns success
+        // ✅ CASE 1: status only (no verification available)
         if (status === "success" && !transaction_id) {
-          document.body.innerHTML = \`
-            <div style="text-align:center; margin-top:50px;">
-              <h2>✅ Payment Successful</h2>
-              <p>Your system is ready to configure</p>
-
-              <br><br>
-
-              <button onclick="window.location.href='/setup.html?id=\${product_id || ""}'">
-                Proceed to Setup
-              </button>
-            </div>
-          \`;
+          document.body.innerHTML =
+            "<div style='text-align:center;margin-top:50px'>" +
+            "<h2>✅ Payment Successful</h2>" +
+            "<p>Your system is ready to configure</p>" +
+            "<br><br>" +
+            "<button onclick=\\"window.location.href='/setup.html?id=" + product_id + "'\\">Proceed to Setup</button>" +
+            "</div>";
           return;
         }
 
-        // ❌ No data at all
+        // ❌ Missing everything
         if (!transaction_id) {
-          document.body.innerHTML = "<h2>❌ Missing transaction data</h2>";
+          document.body.innerHTML =
+            "<div style='text-align:center;margin-top:50px'>" +
+            "<h2>❌ Payment Failed</h2>" +
+            "<p>Please try again or contact support</p>" +
+            "</div>";
           return;
         }
 
         try {
 
+          // 🔍 VERIFY PAYMENT
           const verifyRes = await fetch("/api/verify-payment?transaction_id=" + transaction_id);
           const verifyData = await verifyRes.json();
 
           if (!verifyData.success) {
-            document.body.innerHTML = "<h2>❌ Payment Failed</h2>
-            <p>Please try again or contact support</p>";
+            document.body.innerHTML =
+              "<div style='text-align:center;margin-top:50px'>" +
+              "<h2>❌ Payment Failed</h2>" +
+              "<p>Please try again or contact support</p>" +
+              "</div>";
             return;
           }
 
+          // 💾 SAVE PURCHASE
           await fetch("/api/purchase", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              transaction_id,
-              product_id
+              transaction_id: transaction_id,
+              product_id: product_id
             })
           });
 
-          document.body.innerHTML = \`
-            <div style="text-align:center; margin-top:50px;">
-              <h2>✅ Payment Successful</h2>
-              <p>Your system is ready to configure</p>
-
-              <br><br>
-
-              <button onclick="window.location.href='/setup.html?id=\${product_id}'">
-                Proceed to Setup
-              </button>
-            </div>
-          \`;
+          // ✅ SUCCESS UI
+          document.body.innerHTML =
+            "<div style='text-align:center;margin-top:50px'>" +
+            "<h2>✅ Payment Successful</h2>" +
+            "<p>Your system is ready to configure</p>" +
+            "<br><br>" +
+            "<button onclick=\\"window.location.href='/setup.html?id=" + product_id + "'\\">Proceed to Setup</button>" +
+            "</div>";
 
         } catch (err) {
 
-          document.body.innerHTML = \`
-            <div style="text-align:center; margin-top:50px;">
-              <h2>⚠️ Payment received</h2>
-
-              <br><br>
-
-              <button onclick="window.location.href='/setup.html?id=\${product_id || ""}'">
-                Continue Setup
-              </button>
-            </div>
-          \`;
+          // ⚠️ SAFE ERROR (NO FAKE SUCCESS)
+          document.body.innerHTML =
+            "<div style='text-align:center;margin-top:50px'>" +
+            "<h2>⚠️ Verification Pending</h2>" +
+            "<p>We couldn't confirm your payment right now.</p>" +
+            "<p>Please wait a moment and try again.</p>" +
+            "<br><br>" +
+            "<button onclick='location.reload()'>Retry</button>" +
+            "</div>";
 
         }
 
@@ -858,6 +860,7 @@ app.get("/payment-success", (req, res) => {
     </script>
   `);
 });
+
 
 
 /*===========
