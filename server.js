@@ -773,50 +773,78 @@ app.get("/payment-success", (req, res) => {
       const transaction_id = params.get("transaction_id");
       const tx_ref = params.get("tx_ref");
 
-      // ✅ extract product_id from tx_ref
+      // ✅ extract product_id safely
       const product_id = tx_ref ? tx_ref.split("_")[1] : null;
 
       console.log("TX:", transaction_id);
       console.log("PRODUCT:", product_id);
 
-      if (!transaction_id) {
-        document.body.innerHTML = "<h2>❌ No transaction ID</h2>";
-      } else {
+      async function processPayment() {
 
-        fetch("https://modular-infrastructure.onrender.com/api/verify-payment?transaction_id=" + transaction_id)
-          .then(res => res.json())
-          .then(data => {
+        if (!transaction_id) {
+          document.body.innerHTML = "<h2>❌ No transaction ID</h2>";
+          return;
+        }
 
-            if (data.success) {
+        try {
 
-              // ✅ SAVE PURCHASE
-              fetch("https://modular-infrastructure.onrender.com/api/purchase", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                  transaction_id: transaction_id,
-                  product_id: product_id
-                })
-              })
-              .then(res => res.json())
-              .then(() => {
-                document.body.innerHTML = "<h2>✅ Payment Successful & System Activated</h2>";
-              })
-              .catch(() => {
-                document.body.innerHTML = "<h2>⚠️ Payment OK but save failed</h2>";
-              });
+          // ✅ VERIFY
+          const verifyRes = await fetch("https://modular-infrastructure.onrender.com/api/verify-payment?transaction_id=" + transaction_id);
+          const verifyData = await verifyRes.json();
 
-            } else {
-              document.body.innerHTML = "<h2>❌ Payment Failed</h2>";
-            }
+          if (!verifyData.success) {
+            document.body.innerHTML = "<h2>❌ Payment Failed</h2>
+<p>Please try again or contact support</p>;
+            return;
+          }
 
-          })
-          .catch(() => {
-            document.body.innerHTML = "<h2>⚠️ Verification failed</h2>";
+          // ✅ SAVE PURCHASE
+          await fetch("https://modular-infrastructure.onrender.com/api/purchase", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              transaction_id: transaction_id,
+              product_id: product_id
+            })
           });
+
+          // ✅ SHOW BUTTON (MAIN FIX)
+          document.body.innerHTML = \`
+            <div style="text-align:center; margin-top:50px;">
+              <h2>✅ Payment Successful</h2>
+              <p>Your system is ready to configure</p>
+
+              <br><br>
+
+              <button onclick="window.location.href='/setup.html?id=\${product_id}'">
+                Proceed to Setup
+              </button>
+            </div>
+          \`;
+
+        } catch (err) {
+          console.error(err);
+
+          // ✅ fallback (never hang)
+          document.body.innerHTML = \`
+            <div style="text-align:center; margin-top:50px;">
+              <h2>⚠️ Payment processed</h2>
+              <p>Click below to continue setup</p>
+
+              <br><br>
+
+              <button onclick="window.location.href='/setup.html?id=\${product_id}'">
+                Continue Setup
+              </button>
+            </div>
+          \`;
+        }
+
       }
+
+      processPayment();
     </script>
   `);
 });
