@@ -836,6 +836,7 @@ app.get("/payment-success", (req, res) => {
             body: JSON.stringify({
               transaction_id: transaction_id,
               product_id: product_id
+              email: "test@email.com"
             })
           });
 
