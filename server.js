@@ -703,7 +703,7 @@ app.post("/api/pay", async (req, res) => {
           amount: amount,
           currency: "USD",
           redirect_url:
-            "http://127.0.0.1:5500/payment-success.html",
+            "https://freeners-digital-services.netlify.app/payment-success.html",
 
           customer: {
             email: "test@email.com",
