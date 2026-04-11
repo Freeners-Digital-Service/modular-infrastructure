@@ -703,7 +703,7 @@ app.post("/api/pay", async (req, res) => {
           amount: amount,
           currency: "USD",
           redirect_url:
-            "https://modular-infrastructure.onrender.com/payment-success",
+            "http://127.0.0.1:5500/payment-success.html",
 
           customer: {
             email: "test@email.com",
