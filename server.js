@@ -878,7 +878,7 @@ app.get("/payment-success", (req, res) => {
 
 app.post("/api/purchase", async (req, res) => {
   try {
-    const { transaction_id, product_id } = req.body;
+    const { transaction_id, product_id, email } = req.body;
 
     // ✅ FIX: safe user handling
     const user = req.user || {};
@@ -908,11 +908,11 @@ app.post("/api/purchase", async (req, res) => {
 
     // 💾 Save to DB
     await pool.query(
-      `INSERT INTO purchases 
-      (username, product_id, transaction_id, amount, status)
-      VALUES ($1, $2, $3, $4, $5)`,
-      [username, product_id, transaction_id, amount, "active"]
-    );
+  `INSERT INTO purchases 
+  (email, product_id, transaction_id, amount, status)
+  VALUES ($1, $2, $3, $4, $5)`,
+  [email, product_id, transaction_id, amount, "active"]
+);
 
     res.json({
       success: true,
