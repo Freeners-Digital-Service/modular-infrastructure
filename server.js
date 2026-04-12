@@ -835,7 +835,7 @@ app.get("/payment-success", (req, res) => {
             },
             body: JSON.stringify({
               transaction_id: transaction_id,
-              product_id: product_id
+              product_id: product_id,
               email: "test@email.com"
             })
           });
@@ -878,11 +878,9 @@ app.get("/payment-success", (req, res) => {
 
 app.post("/api/purchase", async (req, res) => {
   try {
-    const { transaction_id, product_id } = req.body;
+    const { transaction_id, product_id, email } = req.body;
 
-    // ✅ FIX: safe user handling
-    const user = req.user || {};
-    const username = user.username || "test_user";
+  
 
     // 🔐 Verify payment (security)
     const verifyRes = await fetch(
@@ -908,11 +906,11 @@ app.post("/api/purchase", async (req, res) => {
 
     // 💾 Save to DB
     await pool.query(
-      `INSERT INTO purchases 
-      (username, product_id, transaction_id, amount, status)
-      VALUES ($1, $2, $3, $4, $5)`,
-      [username, product_id, transaction_id, amount, "active"]
-    );
+  `INSERT INTO purchases 
+  (email, product_id, transaction_id, amount, status)
+  VALUES ($1, $2, $3, $4, $5)`,
+  [email, product_id, transaction_id, amount, "active"]
+);
 
     res.json({
       success: true,
@@ -931,20 +929,38 @@ app.post("/api/purchase", async (req, res) => {
 API USER
 ======== */
 
-app.get("/api/user/purchases", verifyToken, async (req, res) => {
+app.get("/api/user/purchases", async (req, res) => {
   try {
-    // ✅ FIX: safe user handling
-    const user = req.user || {};
-    const username = user.username || "test_user";
+
+    // 🔥 SUPPORT BOTH (NOW + FUTURE)
+    let email = null;
+
+    // 👉 FUTURE (JWT)
+    if (req.user && req.user.email) {
+      email = req.user.email;
+    }
+
+    // 👉 CURRENT (QUERY)
+    if (!email) {
+      email = req.query.email;
+    }
+
+    // ❌ STILL NO EMAIL
+    if (!email) {
+      return res.status(400).json({
+        error: "Email is required"
+      });
+    }
 
     const result = await pool.query(
-      "SELECT * FROM purchases WHERE username = $1 ORDER BY id DESC",
-      [username]
+      "SELECT * FROM purchases WHERE email = $1 ORDER BY id DESC",
+      [email]
     );
 
     res.json(result.rows);
 
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       error: "Failed to fetch purchases"
     });
