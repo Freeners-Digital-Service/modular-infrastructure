@@ -797,7 +797,7 @@ app.get("/payment-success", (req, res) => {
             "<h2>✅ Payment Successful</h2>" +
             "<p>Your system is ready to configure</p>" +
             "<br><br>" +
-            "<button onclick=\\"window.location.href='/setup.html?id=" + product_id + "'\\">Proceed to Setup</button>" +
+            "<button onclick=\\"window.location.href='https://freeners-digital-services.netlify.app/setup.html?id=" + product_id + "'\\">Proceed to Setup</button>" +
             "</div>";
           return;
         }
@@ -846,7 +846,7 @@ app.get("/payment-success", (req, res) => {
             "<h2>✅ Payment Successful</h2>" +
             "<p>Your system is ready to configure</p>" +
             "<br><br>" +
-            "<button onclick=\\"window.location.href='/setup.html?id=" + product_id + "'\\">Proceed to Setup</button>" +
+            "<button onclick=\\"window.location.href='https://freeners-digital-services.netlify.app/setup.html?id=" + product_id + "'\\">Proceed to Setup</button>" +
             "</div>";
 
         } catch (err) {
@@ -878,13 +878,19 @@ app.get("/payment-success", (req, res) => {
 
 app.post("/api/purchase", async (req, res) => {
   try {
-    const { transaction_id, product_id, email } = req.body;
+    const { transaction_id, product_id } = req.body;
 
-    // ✅ FIX: safe user handling
-    const user = req.user || {};
-    const username = user.username || "test_user";
+    // 🚫 STOP if no transaction_id
+    if (!transaction_id) {
+      return res.status(400).json({
+        error: "Missing transaction_id"
+      });
+    }
 
-    // 🔐 Verify payment (security)
+    // ✅ YOUR SYSTEM (USERNAME BASED)
+    const username = "test_user";
+
+    // 🔒 VERIFY PAYMENT (Flutterwave)
     const verifyRes = await fetch(
       `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
       {
@@ -901,18 +907,20 @@ app.post("/api/purchase", async (req, res) => {
       verifyData.status !== "success" ||
       verifyData.data.status !== "successful"
     ) {
-      return res.status(400).json({ error: "Payment not verified" });
+      return res.status(400).json({
+        error: "Payment not verified"
+      });
     }
 
     const amount = verifyData.data.amount;
 
-    // 💾 Save to DB
+    // 💾 SAVE PURCHASE (USERNAME)
     await pool.query(
-  `INSERT INTO purchases 
-  (email, product_id, transaction_id, amount, status)
-  VALUES ($1, $2, $3, $4, $5)`,
-  [email, product_id, transaction_id, amount, "active"]
-);
+      `INSERT INTO purchases 
+      (username, product_id, transaction_id, amount, status)
+      VALUES ($1, $2, $3, $4, $5)`,
+      [username, product_id, transaction_id, amount, "active"]
+    );
 
     res.json({
       success: true,
@@ -920,22 +928,22 @@ app.post("/api/purchase", async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Purchase error:", error);
+
     res.status(500).json({
       error: "Purchase saving failed"
     });
   }
 });
 
-/*========
-API USER
-======== */
+    /*========
+     API USER
+     ======== */
 
-app.get("/api/user/purchases", verifyToken, async (req, res) => {
+app.get("/api/user/purchases", async (req, res) => {
   try {
-    // ✅ FIX: safe user handling
-    const user = req.user || {};
-    const username = user.username || "test_user";
+    // ✅ TEMP USER (same as purchase API)
+    const username = "test_user";
 
     const result = await pool.query(
       "SELECT * FROM purchases WHERE username = $1 ORDER BY id DESC",
@@ -945,11 +953,14 @@ app.get("/api/user/purchases", verifyToken, async (req, res) => {
     res.json(result.rows);
 
   } catch (error) {
+    console.error("Fetch purchases error:", error);
+
     res.status(500).json({
       error: "Failed to fetch purchases"
     });
   }
 });
+
 
 
 /* =========================
@@ -958,11 +969,14 @@ app.get("/api/user/purchases", verifyToken, async (req, res) => {
 
 app.post("/api/setup/save", async (req, res) => {
   try {
-    const { product_id, email, password, data, step } = req.body;
+    const { product_id, data, step } = req.body;
+
+    // ✅ USE SAME USER SYSTEM
+    const username = "test_user";
 
     const existing = await pool.query(
-      "SELECT * FROM setups WHERE product_id = $1 AND email = $2",
-      [product_id, email]
+      "SELECT * FROM setups WHERE product_id = $1 AND username = $2",
+      [product_id, username]
     );
 
     if (existing.rows.length > 0) {
@@ -970,28 +984,17 @@ app.post("/api/setup/save", async (req, res) => {
       await pool.query(
         `UPDATE setups 
          SET data = $1, step = $2 
-         WHERE product_id = $3 AND email = $4`,
-        [data, step, product_id, email]
+         WHERE product_id = $3 AND username = $4`,
+        [data, step, product_id, username]
       );
 
     } else {
 
-      // ✅ SAFE PASSWORD HANDLING
-      let hashedPassword = password;
-
-      if (password) {
-        try {
-          hashedPassword = await bcrypt.hash(password, 10);
-        } catch (e) {
-          console.log("bcrypt failed, using raw password temporarily");
-        }
-      }
-
       await pool.query(
         `INSERT INTO setups 
-         (product_id, email, password, data, step)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [product_id, email, hashedPassword, data, step]
+         (product_id, username, data, step)
+         VALUES ($1, $2, $3, $4)`,
+        [product_id, username, data, step]
       );
 
     }
@@ -1010,11 +1013,14 @@ app.post("/api/setup/save", async (req, res) => {
 
 app.get("/api/setup/load", async (req, res) => {
   try {
-    const { product_id, email } = req.query;
+    const { product_id } = req.query;
+
+    // ✅ SAME USER SYSTEM
+    const username = "test_user";
 
     const result = await pool.query(
-      "SELECT * FROM setups WHERE product_id = $1 AND email = $2",
-      [product_id, email]
+      "SELECT * FROM setups WHERE product_id = $1 AND username = $2",
+      [product_id, username]
     );
 
     if (result.rows.length === 0) {
@@ -1034,19 +1040,23 @@ app.get("/api/setup/load", async (req, res) => {
   }
 });
 
+
 /* =========================
    SUBMIT SETUP
 ========================= */
 
 app.post("/api/setup/submit", async (req, res) => {
   try {
-    const { product_id, email } = req.body;
+    const { product_id } = req.body;
+
+    // ✅ SAME USER SYSTEM
+    const username = "test_user";
 
     await pool.query(
       `UPDATE setups 
        SET status = 'submitted', step = 999
-       WHERE product_id = $1 AND email = $2`,
-      [product_id, email]
+       WHERE product_id = $1 AND username = $2`,
+      [product_id, username]
     );
 
     res.json({ success: true });
@@ -1056,6 +1066,7 @@ app.post("/api/setup/submit", async (req, res) => {
     res.status(500).json({ error: "Submit failed" });
   }
 });
+
 
 
 
