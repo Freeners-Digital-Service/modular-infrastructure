@@ -1068,7 +1068,13 @@ app.post("/api/setup/submit", async (req, res) => {
 });
 
 
+   /*==================
+     API aaproducts
+     ============= */
 
+     app.get("/api/products", (req, res) => {
+  res.json(products);
+});
 
 
 
