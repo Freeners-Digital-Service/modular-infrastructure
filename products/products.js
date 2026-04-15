@@ -1,6 +1,6 @@
 module.exports = [
   {
-    id: 1,
+    id: "sys-ai-1",
     name: "Velora",
     full_name: "Funnel Automation Engine",
     type: "system",
