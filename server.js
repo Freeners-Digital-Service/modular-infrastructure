@@ -703,7 +703,7 @@ app.post("/api/pay", async (req, res) => {
           amount: amount,
           currency: "USD",
           redirect_url:
-            "https://freeners-digital-services.netlify.app/payment-success.html",
+            "https://freeners-ui-site.netlify.app/payment-success.html",
 
           customer: {
             email: "test@email.com",
@@ -797,7 +797,7 @@ app.get("/payment-success", (req, res) => {
             "<h2>✅ Payment Successful</h2>" +
             "<p>Your system is ready to configure</p>" +
             "<br><br>" +
-            "<button onclick=\\"window.location.href='https://freeners-digital-services.netlify.app/setup.html?id=" + product_id + "'\\">Proceed to Setup</button>" +
+            "<button onclick=\\"window.location.href='https://freeners-ui-site.netlify.app/setup.html?id=" + product_id + "'\\">Proceed to Setup</button>" +
             "</div>";
           return;
         }
@@ -846,7 +846,7 @@ app.get("/payment-success", (req, res) => {
             "<h2>✅ Payment Successful</h2>" +
             "<p>Your system is ready to configure</p>" +
             "<br><br>" +
-            "<button onclick=\\"window.location.href='https://freeners-digital-services.netlify.app/setup.html?id=" + product_id + "'\\">Proceed to Setup</button>" +
+            "<button onclick=\\"window.location.href='https://freeners-ui-site.netlify.app/setup.html?id=" + product_id + "'\\">Proceed to Setup</button>" +
             "</div>";
 
         } catch (err) {
