@@ -1062,8 +1062,9 @@ app.get("/api/setup/load", async (req, res) => {
    SUBMIT SETUP
 ========================= */
 
-app.post("/api/setup/submit", async (req, res) => {
+app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
   try {
+    console.log("FILE:", req.file);
 
     const logoPath = req.file ? `/uploads/${req.file.filename}` : null;
     
