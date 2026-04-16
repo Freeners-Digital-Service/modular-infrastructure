@@ -437,6 +437,7 @@ async function getMarketplaceProducts() {
         email TEXT,
         password TEXT,
         data JSONB,
+        logo TEXT,
         step INTEGER DEFAULT 1,
         status TEXT DEFAULT 'draft',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -1064,7 +1065,8 @@ app.get("/api/setup/load", async (req, res) => {
 app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
   try {
 
-    const logoPath = req.file ? `/uploads/${req.file.filename}` : "";
+    const logoPath = req.file ? `/uploads/${req.file.filename}` : null;
+    
 
     const {
       product_id,
@@ -1082,6 +1084,7 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
       `INSERT INTO setups 
       (product_id, email, system_name, business, domain, admin_email, logo, primary_color, secondary_color)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+    
       [
         product_id,
         email,
