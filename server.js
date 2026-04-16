@@ -986,9 +986,17 @@ app.get("/api/user/purchases", async (req, res) => {
 
 app.post("/api/setup/save", async (req, res) => {
   try {
-    const { product_id, data, step } = req.body;
+    const {
+      product_id,
+      system_name,
+      business,
+      domain,
+      admin_email,
+      primary_color,
+      secondary_color,
+      step
+    } = req.body;
 
-    // ✅ USE SAME USER SYSTEM
     const username = "test_user";
 
     const existing = await pool.query(
@@ -999,19 +1007,45 @@ app.post("/api/setup/save", async (req, res) => {
     if (existing.rows.length > 0) {
 
       await pool.query(
-        `UPDATE setups 
-         SET data = $1, step = $2 
-         WHERE product_id = $3 AND username = $4`,
-        [data, step, product_id, username]
+        `UPDATE setups SET
+          system_name = $1,
+          business = $2,
+          domain = $3,
+          admin_email = $4,
+          primary_color = $5,
+          secondary_color = $6,
+          step = $7
+         WHERE product_id = $8 AND username = $9`,
+        [
+          system_name,
+          business,
+          domain,
+          admin_email,
+          primary_color,
+          secondary_color,
+          step,
+          product_id,
+          username
+        ]
       );
 
     } else {
 
       await pool.query(
-        `INSERT INTO setups 
-         (product_id, username, data, step)
-         VALUES ($1, $2, $3, $4)`,
-        [product_id, username, data, step]
+        `INSERT INTO setups
+        (product_id, username, system_name, business, domain, admin_email, primary_color, secondary_color, step)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+        [
+          product_id,
+          username,
+          system_name,
+          business,
+          domain,
+          admin_email,
+          primary_color,
+          secondary_color,
+          step
+        ]
       );
 
     }
@@ -1024,6 +1058,7 @@ app.post("/api/setup/save", async (req, res) => {
   }
 });
 
+
 /* =========================
    LOAD SETUP
 ========================= */
@@ -1032,7 +1067,6 @@ app.get("/api/setup/load", async (req, res) => {
   try {
     const { product_id } = req.query;
 
-    // ✅ SAME USER SYSTEM
     const username = "test_user";
 
     const result = await pool.query(
@@ -1044,11 +1078,21 @@ app.get("/api/setup/load", async (req, res) => {
       return res.json({ found: false });
     }
 
+    const setup = result.rows[0];
+
     res.json({
       found: true,
-      data: result.rows[0].data,
-      step: result.rows[0].step,
-      status: result.rows[0].status
+      step: setup.step,
+      status: setup.status,
+
+      // ✅ RETURN REAL STRUCTURED DATA
+      system_name: setup.system_name,
+      business: setup.business,
+      domain: setup.domain,
+      admin_email: setup.admin_email,
+      primary_color: setup.primary_color,
+      secondary_color: setup.secondary_color,
+      logo: setup.logo
     });
 
   } catch (err) {
@@ -1065,13 +1109,14 @@ app.get("/api/setup/load", async (req, res) => {
 app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
   try {
     console.log("FILE:", req.file);
+    console.log("BODY:", req.body);
+
+    const username = "test_user";
 
     const logoPath = req.file ? `/uploads/${req.file.filename}` : null;
-    
 
     const {
       product_id,
-      email,
       system_name,
       business,
       domain,
@@ -1080,24 +1125,62 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
       secondary_color
     } = req.body;
 
-    // ✅ SAVE TO DATABASE (NeonDB)
-    await pool.query(
-      `INSERT INTO setups 
-      (product_id, email, system_name, business, domain, admin_email, logo, primary_color, secondary_color)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-    
-      [
-        product_id,
-        email,
-        system_name,
-        business,
-        domain,
-        admin_email,
-        logoPath,
-        primary_color,
-        secondary_color
-      ]
+    // 🔹 CHECK IF SETUP EXISTS
+    const existing = await pool.query(
+      "SELECT * FROM setups WHERE product_id = $1 AND username = $2",
+      [product_id, username]
     );
+
+    if (existing.rows.length > 0) {
+
+      // 🔹 UPDATE (DO NOT LOSE OLD LOGO)
+      const currentLogo = existing.rows[0].logo;
+
+      await pool.query(
+        `UPDATE setups SET
+          system_name = $1,
+          business = $2,
+          domain = $3,
+          admin_email = $4,
+          primary_color = $5,
+          secondary_color = $6,
+          logo = $7,
+          status = 'submitted',
+          step = 999
+        WHERE product_id = $8 AND username = $9`,
+        [
+          system_name,
+          business,
+          domain,
+          admin_email,
+          primary_color,
+          secondary_color,
+          logoPath || currentLogo,
+          product_id,
+          username
+        ]
+      );
+
+    } else {
+
+      // 🔹 INSERT (FIRST TIME)
+      await pool.query(
+        `INSERT INTO setups 
+        (product_id, username, system_name, business, domain, admin_email, logo, primary_color, secondary_color, status, step)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'submitted',999)`,
+        [
+          product_id,
+          username,
+          system_name,
+          business,
+          domain,
+          admin_email,
+          logoPath,
+          primary_color,
+          secondary_color
+        ]
+      );
+    }
 
     res.json({
       success: true,
