@@ -11,6 +11,19 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const products = require("./products/products");
+const multer = require("multer");
+const path = require("path");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + "-" + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +32,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
 /* =========================
    POSTGRES MEMORY
@@ -1045,25 +1059,48 @@ app.get("/api/setup/load", async (req, res) => {
    SUBMIT SETUP
 ========================= */
 
-app.post("/api/setup/submit", async (req, res) => {
+app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
   try {
-    const { product_id } = req.body;
 
-    // ✅ SAME USER SYSTEM
-    const username = "test_user";
+    const logoPath = req.file ? `/uploads/${req.file.filename}` : "";
 
+    const {
+      product_id,
+      email,
+      system_name,
+      business,
+      domain,
+      admin_email,
+      primary_color,
+      secondary_color
+    } = req.body;
+
+    // ✅ SAVE TO DATABASE (NeonDB)
     await pool.query(
-      `UPDATE setups 
-       SET status = 'submitted', step = 999
-       WHERE product_id = $1 AND username = $2`,
-      [product_id, username]
+      `INSERT INTO setups 
+      (product_id, email, system_name, business, domain, admin_email, logo, primary_color, secondary_color)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+      [
+        product_id,
+        email,
+        system_name,
+        business,
+        domain,
+        admin_email,
+        logoPath,
+        primary_color,
+        secondary_color
+      ]
     );
 
-    res.json({ success: true });
+    res.json({
+      success: true,
+      logo: logoPath
+    });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Submit failed" });
+    console.log("UPLOAD ERROR:", err);
+    res.status(500).json({ success: false });
   }
 });
 
