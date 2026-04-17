@@ -1101,6 +1101,28 @@ app.get("/api/setup/load", async (req, res) => {
   }
 });
 
+  /*=========
+   Load All setup
+  ===========*/
+
+app.get("/api/setup/load-all", async (req, res) => {
+  try {
+    const username = req.query.username || "test_user";
+
+    const result = await pool.query(
+      "SELECT * FROM setups WHERE username = $1 ORDER BY id DESC",
+      [username]
+    );
+
+    res.json(result.rows);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to load systems" });
+  }
+});
+
+
 
 /* =========================
    SUBMIT SETUP
