@@ -989,7 +989,7 @@ app.post("/api/setup/save", async (req, res) => {
     const {
       product_id,
       system_name,
-      business,
+      business_name,
       domain,
       admin_email,
       primary_color,
@@ -1009,7 +1009,7 @@ app.post("/api/setup/save", async (req, res) => {
       await pool.query(
         `UPDATE setups SET
           system_name = $1,
-          business = $2,
+          business_name = $2,
           domain = $3,
           admin_email = $4,
           primary_color = $5,
@@ -1018,7 +1018,7 @@ app.post("/api/setup/save", async (req, res) => {
          WHERE product_id = $8 AND username = $9`,
         [
           system_name,
-          business,
+          business_name,
           domain,
           admin_email,
           primary_color,
@@ -1033,13 +1033,13 @@ app.post("/api/setup/save", async (req, res) => {
 
       await pool.query(
         `INSERT INTO setups
-        (product_id, username, system_name, business, domain, admin_email, primary_color, secondary_color, step)
+        (product_id, username, system_name, business_name, domain, admin_email, primary_color, secondary_color, step)
         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
         [
           product_id,
           username,
           system_name,
-          business,
+          business_name,
           domain,
           admin_email,
           primary_color,
@@ -1087,7 +1087,7 @@ app.get("/api/setup/load", async (req, res) => {
 
       // ✅ RETURN REAL STRUCTURED DATA
       system_name: setup.system_name,
-      business: setup.business,
+      business_name: setup.business_name,
       domain: setup.domain,
       admin_email: setup.admin_email,
       primary_color: setup.primary_color,
@@ -1140,7 +1140,7 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
     const {
       product_id,
       system_name,
-      business,
+      business_name,
       domain,
       admin_email,
       primary_color,
@@ -1161,7 +1161,7 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
       await pool.query(
         `UPDATE setups SET
           system_name = $1,
-          business = $2,
+          business_name = $2,
           domain = $3,
           admin_email = $4,
           primary_color = $5,
@@ -1172,7 +1172,7 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
         WHERE product_id = $8 AND username = $9`,
         [
           system_name,
-          business,
+          business_name,
           domain,
           admin_email,
           primary_color,
@@ -1188,13 +1188,13 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
       // 🔹 INSERT (FIRST TIME)
       await pool.query(
         `INSERT INTO setups 
-        (product_id, username, system_name, business, domain, admin_email, logo, primary_color, secondary_color, status, step)
+        (product_id, username, system_name, business_name, domain, admin_email, logo, primary_color, secondary_color, status, step)
         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'submitted',999)`,
         [
           product_id,
           username,
           system_name,
-          business,
+          business_name,
           domain,
           admin_email,
           logoPath,
