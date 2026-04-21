@@ -671,8 +671,26 @@ app.post("/auth/login", async (req, res) => {
 
 
 /* =========================
-    BILLING TABLE
+     ENGINES TABLE
 ========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS engines (
+        id SERIAL PRIMARY KEY,
+        name TEXT,
+        type TEXT,
+        status TEXT DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Engines table ready");
+  } catch (err) {
+    console.error("Engines table error:", err);
+  }
+})();
 
 
 /* =========================
