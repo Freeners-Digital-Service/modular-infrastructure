@@ -170,6 +170,31 @@ async function loadTool(toolName) {
 
 }
 
+
+
+/* =========================
+   AGENTS  TABLE
+========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS agents (
+        id SERIAL PRIMARY KEY,
+        module_id INTEGER,
+        name TEXT,
+        status TEXT DEFAULT 'stopped',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Agents table ready");
+  } catch (err) {
+    console.error("Agents table error:", err);
+  }
+})();
+
+
 /* =========================
    AGENT SESSIONS TABLE
 ========================= */
