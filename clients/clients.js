@@ -1,4 +1,6 @@
-const createClientsTable = async (pool) => {
+const pool = require("../db"); // adjust path if needed
+
+const createClientsTable = async () => {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS clients (
@@ -16,4 +18,4 @@ const createClientsTable = async (pool) => {
   }
 };
 
-module.exports = createClientsTable;
+createClientsTable();
