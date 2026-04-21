@@ -477,6 +477,30 @@ async function getMarketplaceProducts() {
 })(); 
 
 
+
+ /*============
+  SYSTEMS TABLE
+  ============*/ 
+  (async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS systems (
+        id SERIAL PRIMARY KEY,
+        client_id INTEGER,
+        name TEXT,
+        type TEXT,
+        status TEXT DEFAULT 'stopped',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Systems table ready");
+  } catch (err) {
+    console.error("Systems table error:", err);
+  }
+})();  
+
+
 /* =========================
    AUTH LOGIN
 ========================= */
