@@ -10,6 +10,7 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const pool = require("./db"); 
 const products = require("./products/products");
 const createClientsTable = require("./clients/clients");
 createClientsTable(pool);
