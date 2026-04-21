@@ -11,7 +11,6 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const products = require("./products/products");
-const clients = require("./clients/clients");
 const path = require("path");
 const multer = require("multer");
 
