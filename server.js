@@ -11,8 +11,10 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const products = require("./products/products");
-const multer = require("multer");
+const clients = require("./clients/clients");
 const path = require("path");
+const multer = require("multer");
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
