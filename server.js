@@ -620,6 +620,88 @@ app.post("/auth/login", async (req, res) => {
   }
 })();
 
+/* =========================
+   PRICING TABLE
+========================= */
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS pricing (
+        id SERIAL PRIMARY KEY,
+        system_id INTEGER,
+        module_id INTEGER,
+        price NUMERIC,
+        billing_cycle TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Pricing table ready");
+  } catch (err) {
+    console.error("Pricing table error:", err);
+  }
+})();
+
+
+
+/* =========================
+    BILLING TABLE
+========================= */
+
+
+/* =========================
+    BILLING TABLE
+========================= */
+
+
+/* =========================
+    BILLING TABLE
+========================= */
+
+
+/* =========================
+    BILLING TABLE
+========================= */
+
+
+
+/* =========================
+    BILLING TABLE
+========================= */
+
+
+
+
+/* =========================
+    BILLING TABLE
+========================= */
+
+
+
+
+/* =========================
+    BILLING TABLE
+========================= */
+
+
+
+
+/* =========================
+    BILLING TABLE
+========================= */
+
+
+
+
+/* =========================
+    BILLING TABLE
+========================= */
+
+
+/* =========================
+    BILLING TABLE
+========================= */
+
 
 /* =========================
    AUTH REGISTER
