@@ -645,8 +645,29 @@ app.post("/auth/login", async (req, res) => {
 
 
 /* =========================
-    BILLING TABLE
+    USAGE TABLE
 ========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS usage (
+        id SERIAL PRIMARY KEY,
+        client_id INTEGER,
+        system_id INTEGER,
+        module_id INTEGER,
+        agent_id INTEGER,
+        usage_type TEXT,
+        amount NUMERIC,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Usage table ready");
+  } catch (err) {
+    console.error("Usage table error:", err);
+  }
+})();
 
 
 /* =========================
