@@ -694,8 +694,26 @@ app.post("/auth/login", async (req, res) => {
 
 
 /* =========================
-    BILLING TABLE
+    ADMIN USERS TABLE
 ========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS admin_users (
+        id SERIAL PRIMARY KEY,
+        username TEXT,
+        password TEXT,
+        role TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Admin users table ready");
+  } catch (err) {
+    console.error("Admin users table error:", err);
+  }
+})();
 
 
 /* =========================
