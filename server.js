@@ -498,7 +498,30 @@ async function getMarketplaceProducts() {
   } catch (err) {
     console.error("Systems table error:", err);
   }
-})();  
+})();
+
+
+/*================
+   modules tsble
+   =============*/
+   (async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS modules (
+        id SERIAL PRIMARY KEY,
+        system_id INTEGER,
+        name TEXT,
+        status TEXT DEFAULT 'inactive',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Modules table ready");
+  } catch (err) {
+    console.error("Modules table error:", err);
+  }
+})();
+
 
 
 /* =========================
