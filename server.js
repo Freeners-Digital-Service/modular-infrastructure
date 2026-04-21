@@ -596,6 +596,31 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
+
+/* =========================
+    BILLING TABLE
+========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS billing (
+        id SERIAL PRIMARY KEY,
+        client_id INTEGER,
+        system_id INTEGER,
+        amount NUMERIC,
+        status TEXT DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Billing table ready");
+  } catch (err) {
+    console.error("Billing table error:", err);
+  }
+})();
+
+
 /* =========================
    AUTH REGISTER
 ========================= */
