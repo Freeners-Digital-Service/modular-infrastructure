@@ -1189,7 +1189,7 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
       await pool.query(
         `INSERT INTO setups 
         (product_id, username, system_name, business_name, domain, admin_email, logo, primary_color, secondary_color, status, step)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'submitted',999)`,
+        VALUES  ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
         [
           product_id,
           username,
@@ -1199,7 +1199,8 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
           admin_email,
           logoPath,
           primary_color,
-          secondary_color
+          secondary_color,
+          "submitted"
         ]
       );
     }
