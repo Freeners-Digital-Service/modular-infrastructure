@@ -1935,26 +1935,24 @@ app.get("/admin/modules", async (req, res) => {
       </tr>
     `).join("");
 
-    res.send(`
-      <h1>Modules</h1>
-
-      <a href="/admin">⬅ Back</a>
-
-      <table border="1" cellpadding="10">
+    const content = `
+      <table>
         <tr>
           <th>ID</th>
-          <th>Name</th>
+          <th>Module Name</th>
           <th>System</th>
         </tr>
         ${rows}
       </table>
-    `);
+    `;
+
+    res.send(renderPage("Modules", content));
 
   } catch (err) {
-    res.send("Error loading modules");
+    console.error(err);
+    res.send(err.message);
   }
 });
-
 
 /* =========================
    Admin Agents Routes
