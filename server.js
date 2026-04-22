@@ -13,6 +13,7 @@ const bcrypt = require("bcrypt");
 const products = require("./products/products");
 const path = require("path");
 const multer = require("multer");
+const renderPage = require("./admin/layout");
 
 
 const storage = multer.diskStorage({
