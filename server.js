@@ -716,10 +716,27 @@ async function getMarketplaceProducts() {
 
 
 /* =========================
-    BILLING TABLE
+    ALERTS TABLE
 ========================= */
 
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS alerts (
+        id SERIAL PRIMARY KEY,
+        system_id INTEGER,
+        type TEXT,
+        message TEXT,
+        status TEXT DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
+    console.log("Alerts table ready");
+  } catch (err) {
+    console.error("Alerts table error:", err);
+  }
+})();
 
 
 /* =========================
