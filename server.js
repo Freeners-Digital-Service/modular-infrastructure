@@ -1015,13 +1015,28 @@ CONNECT SYSTEMS TO CLIENTS Tables
 
 
 /* =========================
-   AUTH LOGIN
+   MONITORING TABLE
 ========================= */
 
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS monitoring (
+        id SERIAL PRIMARY KEY,
+        system_id INTEGER,
+        status TEXT,
+        uptime NUMERIC,
+        checked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
-/* =========================
-   AUTH LOGIN
-========================= */
+    console.log("Monitoring table ready");
+  } catch (err) {
+    console.error("Monitoring table error:", err);
+  }
+})();
+
+
 
 
 /* =========================
