@@ -992,8 +992,26 @@ CONNECT SYSTEMS TO CLIENTS Tables
 
 
 /* =========================
-   AUTH LOGIN
+   SETTINGS TABLE
 ========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS settings (
+        id SERIAL PRIMARY KEY,
+        key TEXT,
+        value TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Settings table ready");
+  } catch (err) {
+    console.error("Settings table error:", err);
+  }
+})();
+
 
 
 /* =========================
