@@ -550,54 +550,6 @@ async function getMarketplaceProducts() {
 
 
 /* =========================
-   AUTH LOGIN
-========================= */
-
-app.post("/auth/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    const result = await pool.query(
-      "SELECT * FROM users WHERE username = $1",
-      [username]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(401).json({
-        error: "User not found"
-      });
-    }
-
-    const user = result.rows[0];
-
-    const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-      return res.status(401).json({
-        error: "Invalid password"
-      });
-    }
-
-    const token = jwt.sign(
-      { user: user.username },
-      JWT_SECRET,
-      { expiresIn: "24h" }
-    );
-
-    res.json({
-      message: "Login successful",
-      token
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      error: "Login failed"
-    });
-  }
-});
-
-
-/* =========================
     BILLING TABLE
 ========================= */
 
@@ -741,8 +693,26 @@ app.post("/auth/login", async (req, res) => {
 
 
 /* =========================
-    BILLING TABLE
+    SYSTEM LOGS TABLE
 ========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS system_logs (
+        id SERIAL PRIMARY KEY,
+        system_id INTEGER,
+        level TEXT,
+        message TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("System logs table ready");
+  } catch (err) {
+    console.error("System logs table error:", err);
+  }
+})();
 
 
 
@@ -776,6 +746,57 @@ app.post("/auth/login", async (req, res) => {
 /* =========================
     BILLING TABLE
 ========================= */
+
+
+
+/* =========================
+   AUTH LOGIN
+========================= */
+
+app.post("/auth/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const result = await pool.query(
+      "SELECT * FROM users WHERE username = $1",
+      [username]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        error: "User not found"
+      });
+    }
+
+    const user = result.rows[0];
+
+    const validPassword = await bcrypt.compare(password, user.password);
+
+    if (!validPassword) {
+      return res.status(401).json({
+        error: "Invalid password"
+      });
+    }
+
+    const token = jwt.sign(
+      { user: user.username },
+      JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    res.json({
+      message: "Login successful",
+      token
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: "Login failed"
+    });
+  }
+});
+
+
 
 
 /* =========================
