@@ -830,6 +830,30 @@ async function getMarketplaceProducts() {
   }
 })();
 
+/*==============
+EMBEDDING TABLE
+==============*/
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS embeddings (
+        id SERIAL PRIMARY KEY,
+        system_id INTEGER,
+        content TEXT,
+        vector TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Embeddings table ready");
+  } catch (err) {
+    console.error("Embeddings table error:", err);
+  }
+})();
+
+
+
 
 /* =========================
    AUTH LOGIN
