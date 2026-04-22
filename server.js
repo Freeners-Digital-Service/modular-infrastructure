@@ -1869,7 +1869,8 @@ app.get("/admin/clients", async (req, res) => {
     res.send(renderPage("Clients", content));
 
   } catch (err) {
-    res.send("Error loading clients");
+  console.error(err);
+  res.send(err.message);
   }
 });
 
