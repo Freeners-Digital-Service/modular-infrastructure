@@ -1881,7 +1881,7 @@ app.get("/admin/clients", async (req, res) => {
  app.get("/admin/systems", async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT s.id, s.name, s.type, s.status, c.name AS client
+      SELECT s.id, s.name, c.name AS client
       FROM systems s
       LEFT JOIN clients c ON s.client_id = c.id
     `);
@@ -1890,31 +1890,26 @@ app.get("/admin/clients", async (req, res) => {
       <tr>
         <td>${s.id}</td>
         <td>${s.name}</td>
-        <td>${s.type}</td>
-        <td>${s.status}</td>
         <td>${s.client || "N/A"}</td>
       </tr>
     `).join("");
 
-    res.send(`
-      <h1>Systems</h1>
-
-      <a href="/admin">⬅ Back</a>
-
-      <table border="1" cellpadding="10">
+    const content = `
+      <table>
         <tr>
           <th>ID</th>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Status</th>
+          <th>System Name</th>
           <th>Client</th>
         </tr>
         ${rows}
       </table>
-    `);
+    `;
+
+    res.send(renderPage("Systems", content));
 
   } catch (err) {
-    res.send("Error loading systems");
+    console.error(err);
+    res.send(err.message);
   }
 });
 
