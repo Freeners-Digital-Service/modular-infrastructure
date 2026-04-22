@@ -788,9 +788,25 @@ async function getMarketplaceProducts() {
 
 
 /* =========================
-    BILLING TABLE
+    DEPLOYMENTS TABLE
 ========================= */
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS deployments (
+        id SERIAL PRIMARY KEY,
+        system_id INTEGER,
+        version TEXT,
+        status TEXT,
+        deployed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
+    console.log("Deployments table ready");
+  } catch (err) {
+    console.error("Deployments table error:", err);
+  }
+})();
 
 /* =========================
     BILLING TABLE
