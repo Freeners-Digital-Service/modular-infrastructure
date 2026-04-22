@@ -1961,6 +1961,48 @@ app.get("/admin/modules", async (req, res) => {
 
 
 /* =========================
+   Admin Agents Routes
+========================= */
+
+app.get("/admin/agents", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT a.id, a.name, m.name AS module
+      FROM agents a
+      LEFT JOIN module_agents ma ON a.id = ma.agent_id
+      LEFT JOIN modules m ON ma.module_id = m.id
+    `);
+
+    let rows = result.rows.map(a => `
+      <tr>
+        <td>${a.id}</td>
+        <td>${a.name}</td>
+        <td>${a.module || "N/A"}</td>
+      </tr>
+    `).join("");
+
+    res.send(`
+      <h1>Agents</h1>
+
+      <a href="/admin">⬅ Back</a>
+
+      <table border="1" cellpadding="10">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Module</th>
+        </tr>
+        ${rows}
+      </table>
+    `);
+
+  } catch (err) {
+    res.send("Error loading agents");
+  }
+});
+
+
+/* =========================
    AGENT LOADER ENGINE
 ========================= */
 
