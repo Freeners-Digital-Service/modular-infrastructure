@@ -764,10 +764,27 @@ async function getMarketplaceProducts() {
 
 
 /* =========================
-    BILLING TABLE
+    SYSTEM HEALTH TABLE
 ========================= */
 
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS system_health (
+        id SERIAL PRIMARY KEY,
+        system_id INTEGER,
+        cpu_usage NUMERIC,
+        memory_usage NUMERIC,
+        status TEXT,
+        recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
+    console.log("System health table ready");
+  } catch (err) {
+    console.error("System health table error:", err);
+  }
+})();
 
 
 /* =========================
