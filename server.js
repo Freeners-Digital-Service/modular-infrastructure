@@ -923,8 +923,25 @@ CONNECT SYSTEMS TO CLIENTS Tables
 
 
 /* =========================
-   AUTH LOGIN
+   TABLE: module_agents
 ========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS module_agents (
+        id SERIAL PRIMARY KEY,
+        module_id INTEGER,
+        agent_id INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Module agents table ready");
+  } catch (err) {
+    console.error("Module agents table error:", err);
+  }
+})();
 
 
 /* =========================
