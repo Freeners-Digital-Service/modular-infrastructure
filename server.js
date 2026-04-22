@@ -879,9 +879,25 @@ EMBEDDING TABLE
 
 
 /* =========================
-   AUTH LOGIN
+CONNECT SYSTEMS TO CLIENTS Tables
 ========================= */
 
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS client_systems (
+        id SERIAL PRIMARY KEY,
+        client_id INTEGER,
+        system_id INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Client systems table ready");
+  } catch (err) {
+    console.error("Client systems table error:", err);
+  }
+})();
 
 
 /* =========================
