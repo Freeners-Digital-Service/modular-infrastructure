@@ -901,8 +901,25 @@ CONNECT SYSTEMS TO CLIENTS Tables
 
 
 /* =========================
-   AUTH LOGIN
+   TABLE: system_modules
 ========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS system_modules (
+        id SERIAL PRIMARY KEY,
+        system_id INTEGER,
+        module_id INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("System modules table ready");
+  } catch (err) {
+    console.error("System modules table error:", err);
+  }
+})();
 
 
 /* =========================
