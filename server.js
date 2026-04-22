@@ -740,7 +740,7 @@ async function getMarketplaceProducts() {
 
 
 /* =========================
-    BILLING TABLE
+    ANALYTICS EVENTS Table
 ========================= */
 
 
