@@ -854,6 +854,50 @@ EMBEDDING TABLE
 
 
 
+/* =========================
+    SOCIAL MEDIA TABLE
+========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS social_media (
+        id SERIAL PRIMARY KEY,
+        client_id INTEGER,
+        platform TEXT,
+        account_name TEXT,
+        status TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Social media table ready");
+  } catch (err) {
+    console.error("Social media table error:", err);
+  }
+})();
+
+
+/* =========================
+   AUTH LOGIN
+========================= */
+
+
+
+/* =========================
+   AUTH LOGIN
+========================= */
+
+
+/* =========================
+   AUTH LOGIN
+========================= */
+
+
+/* =========================
+   AUTH LOGIN
+========================= */
+
 
 /* =========================
    AUTH LOGIN
