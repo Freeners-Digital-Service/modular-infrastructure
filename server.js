@@ -968,8 +968,27 @@ CONNECT SYSTEMS TO CLIENTS Tables
 
 
 /* =========================
-   AUTH LOGIN
+   SUPPORT TABLE
 ========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS support (
+        id SERIAL PRIMARY KEY,
+        client_id INTEGER,
+        subject TEXT,
+        message TEXT,
+        status TEXT DEFAULT 'open',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Support table ready");
+  } catch (err) {
+    console.error("Support table error:", err);
+  }
+})();
 
 
 /* =========================
