@@ -717,8 +717,26 @@ app.post("/auth/login", async (req, res) => {
 
 
 /* =========================
-    BILLING TABLE
+    ACTIVITY LOGS TABLE
 ========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS activity_logs (
+        id SERIAL PRIMARY KEY,
+        admin_id INTEGER,
+        action TEXT,
+        target TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Activity logs table ready");
+  } catch (err) {
+    console.error("Activity logs table error:", err);
+  }
+})();
 
 
 
