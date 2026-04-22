@@ -66,3 +66,4 @@ function renderPage(title, content) {
     </html>
   `;
 }
+module.exports = renderPage;
