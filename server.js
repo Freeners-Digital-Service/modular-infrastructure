@@ -945,6 +945,44 @@ CONNECT SYSTEMS TO CLIENTS Tables
 
 
 /* =========================
+    SECURITY TABLE
+========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS security (
+        id SERIAL PRIMARY KEY,
+        admin_id INTEGER,
+        action TEXT,
+        ip_address TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Security table ready");
+  } catch (err) {
+    console.error("Security table error:", err);
+  }
+})();
+
+
+/* =========================
+   AUTH LOGIN
+========================= */
+
+
+/* =========================
+   AUTH LOGIN
+========================= */
+
+
+/* =========================
+   AUTH LOGIN
+========================= */
+
+
+/* =========================
    AUTH LOGIN
 ========================= */
 
