@@ -809,9 +809,26 @@ async function getMarketplaceProducts() {
 })();
 
 /* =========================
-    BILLING TABLE
+   PERMISSIONS TABLE
 ========================= */
 
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS permissions (
+        id SERIAL PRIMARY KEY,
+        admin_id INTEGER,
+        resource TEXT,
+        action TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Permissions table ready");
+  } catch (err) {
+    console.error("Permissions table error:", err);
+  }
+})();
 
 
 /* =========================
