@@ -1854,12 +1854,8 @@ app.get("/admin/clients", async (req, res) => {
       </tr>
     `).join("");
 
-    res.send(`
-      <h1>Clients</h1>
-
-      <a href="/admin">⬅ Back</a>
-
-      <table border="1" cellpadding="10">
+    const content = `
+      <table>
         <tr>
           <th>ID</th>
           <th>Name</th>
@@ -1868,13 +1864,14 @@ app.get("/admin/clients", async (req, res) => {
         </tr>
         ${rows}
       </table>
-    `);
+    `;
+
+    res.send(renderPage("Clients", content));
 
   } catch (err) {
     res.send("Error loading clients");
   }
 });
-
 
 /*==================
     ADMIN Systems Route
