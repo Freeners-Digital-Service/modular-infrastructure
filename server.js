@@ -1815,6 +1815,25 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
 });
 
 
+/*==================
+    ADMIN ROUTE
+ ============= */
+
+app.get("/admin", (req, res) => {
+  res.send(`
+    <h1>Admin Control Panel</h1>
+
+    <ul>
+      <li><a href="/admin/clients">Clients</a></li>
+      <li><a href="/admin/systems">Systems</a></li>
+      <li><a href="/admin/modules">Modules</a></li>
+      <li><a href="/admin/agents">Agents</a></li>
+    </ul>
+  `);
+});
+ 
+
+
 
 /* =========================
    AGENT LOADER ENGINE
