@@ -743,7 +743,24 @@ async function getMarketplaceProducts() {
     ANALYTICS EVENTS Table
 ========================= */
 
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS analytics_events (
+        id SERIAL PRIMARY KEY,
+        client_id INTEGER,
+        system_id INTEGER,
+        event_type TEXT,
+        metadata TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
+    console.log("Analytics events table ready");
+  } catch (err) {
+    console.error("Analytics events error:", err);
+  }
+})();
 
 
 /* =========================
