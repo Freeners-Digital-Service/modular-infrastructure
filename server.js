@@ -1834,6 +1834,45 @@ app.get("/admin", (req, res) => {
  
 
 
+/*==================
+    ADMIN Client Route
+ ============= ======*/
+
+app.get("/admin/clients", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM clients");
+
+    let rows = result.rows.map(c => `
+      <tr>
+        <td>${c.id}</td>
+        <td>${c.name}</td>
+        <td>${c.email}</td>
+        <td>${c.status}</td>
+      </tr>
+    `).join("");
+
+    res.send(`
+      <h1>Clients</h1>
+
+      <a href="/admin">⬅ Back</a>
+
+      <table border="1" cellpadding="10">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Status</th>
+        </tr>
+        ${rows}
+      </table>
+    `);
+
+  } catch (err) {
+    res.send("Error loading clients");
+  }
+});
+
+
 
 /* =========================
    AGENT LOADER ENGINE
