@@ -14,6 +14,7 @@ const products = require("./products/products");
 const path = require("path");
 const multer = require("multer");
 const renderPage = require("./admin/layout");
+const adminClients = require("./routes/adminClients");
 
 
 const storage = multer.diskStorage({
@@ -37,6 +38,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
+app.use("/admin", adminClients(pool, renderPage));
 
 
 
@@ -1864,43 +1866,6 @@ app.get("/admin", async (req, res) => {
 });
  
 
-
-/*==================
-    ADMIN Client Route
- ============= ======*/
-
-app.get("/admin/clients", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM clients");
-
-    let rows = result.rows.map(c => `
-      <tr>
-        <td>${c.id}</td>
-        <td>${c.name}</td>
-        <td>${c.email}</td>
-        <td>${c.status}</td>
-      </tr>
-    `).join("");
-
-    const content = `
-      <table>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Status</th>
-        </tr>
-        ${rows}
-      </table>
-    `;
-
-    res.send(renderPage("Clients", content));
-
-  } catch (err) {
-  console.error(err);
-  res.send(err.message);
-  }
-});
 
 /*==================
     ADMIN Systems Route
