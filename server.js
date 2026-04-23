@@ -1975,23 +1975,22 @@ app.get("/admin/agents", async (req, res) => {
       </tr>
     `).join("");
 
-    res.send(`
-      <h1>Agents</h1>
-
-      <a href="/admin">⬅ Back</a>
-
-      <table border="1" cellpadding="10">
+    const content = `
+      <table>
         <tr>
           <th>ID</th>
-          <th>Name</th>
+          <th>Agent Name</th>
           <th>Module</th>
         </tr>
         ${rows}
       </table>
-    `);
+    `;
+
+    res.send(renderPage("Agents", content));
 
   } catch (err) {
-    res.send("Error loading agents");
+    console.error(err);
+    res.send(err.message);
   }
 });
 
