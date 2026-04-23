@@ -59,46 +59,44 @@ function authRoutes(pool) {
     }
   });
 
-  return router;
-}
+  /* =========================
+     AUTH REGISTER
+  ========================= */
+  router.post("/register", async (req, res) => {
+    try {
+      const { username, password } = req.body;
 
-// REGISTER
-router.post("/register", async (req, res) => {
-  try {
-    const { username, password } = req.body;
+      const existing = await pool.query(
+        "SELECT * FROM users WHERE username = $1",
+        [username]
+      );
 
-    // check if user exists
-    const existing = await pool.query(
-      "SELECT * FROM users WHERE username = $1",
-      [username]
-    );
+      if (existing.rows.length > 0) {
+        return res.status(400).json({
+          error: "User already exists"
+        });
+      }
 
-    if (existing.rows.length > 0) {
-      return res.status(400).json({
-        error: "User already exists"
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      await pool.query(
+        "INSERT INTO users (username, password) VALUES ($1, $2)",
+        [username, hashedPassword]
+      );
+
+      res.json({
+        message: "User registered successfully"
+      });
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        error: "Registration failed"
       });
     }
+  });
 
-    // hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // insert user
-    await pool.query(
-      "INSERT INTO users (username, password) VALUES ($1, $2)",
-      [username, hashedPassword]
-    );
-
-    res.json({
-      message: "User registered successfully"
-    });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      error: "Registration failed"
-    });
-  }
-});
-
+  return router;
+}
 
 module.exports = authRoutes;
