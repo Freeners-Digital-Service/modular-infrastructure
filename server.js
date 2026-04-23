@@ -1822,17 +1822,45 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
     ADMIN ROUTE
  ============= */
 
-app.get("/admin", (req, res) => {
-  res.send(`
-    <h1>Admin Control Panel</h1>
+app.get("/admin", async (req, res) => {
+  try {
+    const clients = await pool.query("SELECT COUNT(*) FROM clients");
+    const systems = await pool.query("SELECT COUNT(*) FROM systems");
+    const modules = await pool.query("SELECT COUNT(*) FROM modules");
+    const agents = await pool.query("SELECT COUNT(*) FROM agents");
 
-    <ul>
-      <li><a href="/admin/clients">Clients</a></li>
-      <li><a href="/admin/systems">Systems</a></li>
-      <li><a href="/admin/modules">Modules</a></li>
-      <li><a href="/admin/agents">Agents</a></li>
-    </ul>
-  `);
+    const content = `
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px;">
+        
+        <div style="padding:20px; background:#f4f4f4;">
+          <h2>Clients</h2>
+          <p>${clients.rows[0].count}</p>
+        </div>
+
+        <div style="padding:20px; background:#f4f4f4;">
+          <h2>Systems</h2>
+          <p>${systems.rows[0].count}</p>
+        </div>
+
+        <div style="padding:20px; background:#f4f4f4;">
+          <h2>Modules</h2>
+          <p>${modules.rows[0].count}</p>
+        </div>
+
+        <div style="padding:20px; background:#f4f4f4;">
+          <h2>Agents</h2>
+          <p>${agents.rows[0].count}</p>
+        </div>
+
+      </div>
+    `;
+
+    res.send(renderPage("Dashboard", content));
+
+  } catch (err) {
+    console.error(err);
+    res.send(err.message);
+  }
 });
  
 
