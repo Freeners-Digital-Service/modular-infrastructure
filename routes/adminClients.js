@@ -3,7 +3,7 @@ const express = require("express");
 function adminClients(pool, renderPage) {
   const router = express.Router();
 
-  // GET clients
+  // GET clients (VIEW ONLY)
   router.get("/clients", async (req, res) => {
     try {
       const result = await pool.query("SELECT * FROM clients");
@@ -18,16 +18,12 @@ function adminClients(pool, renderPage) {
       `).join("");
 
       const content = `
-        <h3>Add New Client</h3>
-
-        <form method="POST" action="/admin/clients">
-          <input name="name" placeholder="Name" required />
-          <input name="email" placeholder="Email" required />
-          <input name="status" value="active" />
-          <button>Create</button>
-        </form>
-
-        <br/>
+        <div style="margin-bottom:20px;">
+          <h3>Clients Overview</h3>
+          <p style="color:gray;">
+            Clients are registered through the system and displayed here automatically.
+          </p>
+        </div>
 
         <table>
           <tr>
@@ -44,25 +40,7 @@ function adminClients(pool, renderPage) {
 
     } catch (err) {
       console.error(err);
-      res.send(err.message);
-    }
-  });
-
-  // POST create client
-  router.post("/clients", async (req, res) => {
-    try {
-      const { name, email, status } = req.body;
-
-      await pool.query(
-        "INSERT INTO clients (name, email, status) VALUES ($1, $2, $3)",
-        [name, email, status]
-      );
-
-      res.redirect("/admin/clients");
-
-    } catch (err) {
-      console.error(err);
-      res.send(err.message);
+      res.send("Error loading clients");
     }
   });
 
