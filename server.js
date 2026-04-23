@@ -10,6 +10,12 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { Pool } = require("pg");
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 const products = require("./products/products");
 const path = require("path");
 const multer = require("multer");
@@ -47,13 +53,6 @@ app.use("/admin", adminClients(pool, renderPage));
 /* =========================
    POSTGRES MEMORY
 ========================= */
-
-const { Pool } = require("pg");
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
 
 (async () => {
   try {
