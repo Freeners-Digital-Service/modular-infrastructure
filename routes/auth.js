@@ -62,4 +62,43 @@ function authRoutes(pool) {
   return router;
 }
 
+// REGISTER
+router.post("/register", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // check if user exists
+    const existing = await pool.query(
+      "SELECT * FROM users WHERE username = $1",
+      [username]
+    );
+
+    if (existing.rows.length > 0) {
+      return res.status(400).json({
+        error: "User already exists"
+      });
+    }
+
+    // hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // insert user
+    await pool.query(
+      "INSERT INTO users (username, password) VALUES ($1, $2)",
+      [username, hashedPassword]
+    );
+
+    res.json({
+      message: "User registered successfully"
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: "Registration failed"
+    });
+  }
+});
+
+
 module.exports = authRoutes;
