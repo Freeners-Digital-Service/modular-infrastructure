@@ -8,8 +8,6 @@ process.on("unhandledRejection", (err) => {
 
 const express = require("express");
 const cors = require("cors");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
 const { Pool } = require("pg");
 
 const pool = new Pool({
@@ -1046,117 +1044,6 @@ CONNECT SYSTEMS TO CLIENTS Tables
 })();
 
 
-
-
-/* =========================
-   AUTH LOGIN
-========================= */
-
-app.post("/auth/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    const result = await pool.query(
-      "SELECT * FROM users WHERE username = $1",
-      [username]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(401).json({
-        error: "User not found"
-      });
-    }
-
-    const user = result.rows[0];
-
-    const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-      return res.status(401).json({
-        error: "Invalid password"
-      });
-    }
-
-    const token = jwt.sign(
-      { user: user.username },
-      JWT_SECRET,
-      { expiresIn: "24h" }
-    );
-
-    res.json({
-      message: "Login successful",
-      token
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      error: "Login failed"
-    });
-  }
-});
-
-
-
-
-/* =========================
-   AUTH REGISTER
-========================= */
-
-app.post("/auth/register", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    await pool.query(
-      "INSERT INTO users (username, password) VALUES ($1, $2)",
-      [username, hashedPassword]
-    );
-
-    res.json({
-      message: "User registered successfully"
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      error: "Registration failed"
-    });
-  }
-});
-
-/* =========================
-   JWT VERIFY MIDDLEWARE
-========================= */
-
-function verifyToken(req, res, next) {
-
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res.status(403).json({
-      error: "Token required"
-    });
-  }
-
-  const token = authHeader.split(" ")[1];
-
-  try {
-
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    req.user = decoded.user;
-
-    next();
-
-  } catch (error) {
-
-    return res.status(401).json({
-      error: "Invalid token"
-    });
-
-  }
-
-}
 
 /* =========================
    ROOT
