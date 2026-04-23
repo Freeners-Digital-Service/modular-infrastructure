@@ -22,6 +22,7 @@ const multer = require("multer");
 const adminClients = require("./routes/adminClients");
 const renderPage = require("./admin/layout");
 const authRoutes = require("./routes/auth");
+const verifyToken = require("./routes/verify");
 
 
 
@@ -47,7 +48,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 app.use("/uploads", express.static("uploads"));
-app.use("/admin", adminClients(pool, renderPage));
+app.use("/admin", verifyToken, adminClients(pool, renderPage));
 app.use("/auth", authRoutes(pool));
 
 
