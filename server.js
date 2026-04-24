@@ -51,7 +51,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 app.use("/uploads", express.static("uploads"));
 app.use("/auth", authRoutes(pool));
-app.use("/admin", adminMain(pool, renderPage));
+app.use("/admin", verifyToken, adminMain(pool, renderPage));
 app.use("/admin", verifyToken, adminClients(pool, renderPage));
 app.use("/admin", verifyToken, adminSystems(pool, renderPage));
 app.use("/admin", verifyToken, adminModules(pool, renderPage));
