@@ -35,6 +35,8 @@ const adminActivityLogs = require("./routes/adminActivityLogs");
 const adminSystemLogs = require("./routes/adminSystemLogs");
 const adminAlerts = require("./routes/adminAlerts");
 const adminAnalyticsEvents = require("./routes/adminAnalyticsEvents");
+const adminSystemHealth = require("./routes/adminSystemHealth");
+
 
 
 
@@ -77,6 +79,7 @@ app.use("/admin", verifyToken, adminActivityLogs(pool, renderPage));
 app.use("/admin", verifyToken, adminSystemLogs(pool, renderPage));
 app.use("/admin", verifyToken, adminAlerts(pool, renderPage));
 app.use("/admin", verifyToken, adminAnalyticsEvents(pool, renderPage));
+app.use("/admin", verifyToken, adminSystemHealth(pool, renderPage));
 
 
 
