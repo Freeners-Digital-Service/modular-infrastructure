@@ -17,6 +17,7 @@ const pool = new Pool({
 const products = require("./products/products");
 const path = require("path");
 const multer = require("multer");
+const adminMain = require("./routes/adminMain");
 const adminClients = require("./routes/adminClients");
 const renderPage = require("./admin/layout");
 const authRoutes = require("./routes/auth");
@@ -46,6 +47,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 app.use("/uploads", express.static("uploads"));
+app.use("/admin", adminMain(pool, renderPage));
 app.use("/admin", verifyToken, adminClients(pool, renderPage));
 app.use("/auth", authRoutes(pool));
 
@@ -1710,51 +1712,6 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
   res.json(products);
 });
 
-
-/*==================
-    ADMIN ROUTE
- ============= */
-
-app.get("/admin", async (req, res) => {
-  try {
-    const clients = await pool.query("SELECT COUNT(*) FROM clients");
-    const systems = await pool.query("SELECT COUNT(*) FROM systems");
-    const modules = await pool.query("SELECT COUNT(*) FROM modules");
-    const agents = await pool.query("SELECT COUNT(*) FROM agents");
-
-    const content = `
-      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px;">
-        
-        <div style="padding:20px; background:#f4f4f4;">
-          <h2>Clients</h2>
-          <p>${clients.rows[0].count}</p>
-        </div>
-
-        <div style="padding:20px; background:#f4f4f4;">
-          <h2>Systems</h2>
-          <p>${systems.rows[0].count}</p>
-        </div>
-
-        <div style="padding:20px; background:#f4f4f4;">
-          <h2>Modules</h2>
-          <p>${modules.rows[0].count}</p>
-        </div>
-
-        <div style="padding:20px; background:#f4f4f4;">
-          <h2>Agents</h2>
-          <p>${agents.rows[0].count}</p>
-        </div>
-
-      </div>
-    `;
-
-    res.send(renderPage("Dashboard", content));
-
-  } catch (err) {
-    console.error(err);
-    res.send(err.message);
-  }
-});
  
 
 
