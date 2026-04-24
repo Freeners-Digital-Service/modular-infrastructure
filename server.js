@@ -23,6 +23,7 @@ const authRoutes = require("./routes/auth");
 const verifyToken = require("./routes/verify");
 const adminClients = require("./routes/adminClients");
 const adminSystems = require("./routes/adminSystems");
+const adminModules = require("./routes/adminModules");
 
 
 
@@ -52,6 +53,7 @@ app.use("/auth", authRoutes(pool));
 app.use("/admin", adminMain(pool, renderPage));
 app.use("/admin", verifyToken, adminClients(pool, renderPage));
 app.use("/admin", verifyToken, adminSystems(pool, renderPage));
+app.use("/admin", verifyToken, adminModules(pool, renderPage));
 
 
 
@@ -1717,45 +1719,6 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
 
  
 
-/* =========================
-   Admin Modules Routes
-========================= */
-
-app.get("/admin/modules", async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT m.id, m.name, s.name AS system
-      FROM modules m
-      LEFT JOIN system_modules sm ON m.id = sm.module_id
-      LEFT JOIN systems s ON sm.system_id = s.id
-    `);
-
-    let rows = result.rows.map(m => `
-      <tr>
-        <td>${m.id}</td>
-        <td>${m.name}</td>
-        <td>${m.system || "N/A"}</td>
-      </tr>
-    `).join("");
-
-    const content = `
-      <table>
-        <tr>
-          <th>ID</th>
-          <th>Module Name</th>
-          <th>System</th>
-        </tr>
-        ${rows}
-      </table>
-    `;
-
-    res.send(renderPage("Modules", content));
-
-  } catch (err) {
-    console.error(err);
-    res.send(err.message);
-  }
-});
 
 /* =========================
    Admin Agents Routes
