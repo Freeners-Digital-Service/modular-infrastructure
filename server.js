@@ -32,6 +32,7 @@ const adminAgentSessions = require("./routes/adminAgentSessions");
 const adminAgentTasks = require("./routes/adminAgentTasks");
 const adminUsers = require("./routes/adminUsers");
 const adminActivityLogs = require("./routes/adminActivityLogs");
+const adminSystemLogs = require("./routes/adminSystemLogs");
 
 
 
@@ -73,6 +74,7 @@ app.use("/admin", verifyToken, adminAgentSessions(pool, renderPage));
 app.use("/admin", verifyToken, adminAgentTasks(pool, renderPage));
 app.use("/admin", verifyToken, adminUsers(pool, renderPage));
 app.use("/admin", verifyToken, adminActivityLogs(pool, renderPage));
+app.use("/admin", verifyToken, adminSystemLogs(pool, renderPage));
 
 
 
