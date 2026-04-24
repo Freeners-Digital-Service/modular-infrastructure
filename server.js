@@ -18,10 +18,11 @@ const products = require("./products/products");
 const path = require("path");
 const multer = require("multer");
 const adminMain = require("./routes/adminMain");
-const adminClients = require("./routes/adminClients");
 const renderPage = require("./admin/layout");
 const authRoutes = require("./routes/auth");
 const verifyToken = require("./routes/verify");
+const adminClients = require("./routes/adminClients");
+const adminSystems = require("./routes/adminSystems");
 
 
 
@@ -47,9 +48,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 app.use("/uploads", express.static("uploads"));
+app.use("/auth", authRoutes(pool));
 app.use("/admin", adminMain(pool, renderPage));
 app.use("/admin", verifyToken, adminClients(pool, renderPage));
-app.use("/auth", authRoutes(pool));
+app.use("/admin", verifyToken, adminSystems(pool, renderPage));
+
 
 
 
@@ -1713,47 +1716,6 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
 });
 
  
-
-
-/*==================
-    ADMIN Systems Route
- ============= ======*/
-
- app.get("/admin/systems", async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT s.id, s.name, c.name AS client
-      FROM systems s
-      LEFT JOIN clients c ON s.client_id = c.id
-    `);
-
-    let rows = result.rows.map(s => `
-      <tr>
-        <td>${s.id}</td>
-        <td>${s.name}</td>
-        <td>${s.client || "N/A"}</td>
-      </tr>
-    `).join("");
-
-    const content = `
-      <table>
-        <tr>
-          <th>ID</th>
-          <th>System Name</th>
-          <th>Client</th>
-        </tr>
-        ${rows}
-      </table>
-    `;
-
-    res.send(renderPage("Systems", content));
-
-  } catch (err) {
-    console.error(err);
-    res.send(err.message);
-  }
-});
-
 
 /* =========================
    Admin Modules Routes
