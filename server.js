@@ -28,6 +28,7 @@ const adminAgents = require("./routes/adminAgents");
 const adminClientSystems = require("./routes/adminClientSystems");
 const adminSystemModules = require("./routes/adminSystemModules");
 const adminModuleAgents = require("./routes/adminModuleAgents");
+const adminAgentSessions = require("./routes/adminAgentSessions");
 
 
 
@@ -63,6 +64,7 @@ app.use("/admin", verifyToken, adminAgents(pool, renderPage));
 app.use("/admin", verifyToken, adminClientSystems(pool, renderPage));
 app.use("/admin", verifyToken, adminSystemModules(pool, renderPage));
 app.use("/admin", verifyToken, adminModuleAgents(pool, renderPage));
+app.use("/admin", verifyToken, adminAgentSessions(pool, renderPage));
 
 
 
