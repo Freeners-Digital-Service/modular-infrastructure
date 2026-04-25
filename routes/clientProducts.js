@@ -54,8 +54,8 @@ function clientProducts(pool) {
         [
           client_id,
           website_id,
-          domain_type || null,
-          domain_name || null
+          domain_type ?? null,
+          domain_name ?? null
         ]
       );
 
