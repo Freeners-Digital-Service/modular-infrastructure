@@ -1206,6 +1206,33 @@ CONNECT SYSTEMS TO CLIENTS Tables
 
 
 /* =========================
+   SYSTEM ↔ WEBSITE CONNECTION
+========================= */
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS system_website_connections (
+        id SERIAL PRIMARY KEY,
+
+        client_id INTEGER,
+
+        system_id INTEGER,      -- from client_systems
+        website_id INTEGER,     -- from client_products
+
+        status TEXT DEFAULT 'connected',   -- connected / disconnected
+
+        connected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("System-Website connection table ready");
+  } catch (err) {
+    console.error("System-Website connection error:", err);
+  }
+})();
+
+
+/* =========================
    ROOT
 ========================= */
 
