@@ -38,6 +38,7 @@ const adminAnalyticsEvents = require("./routes/adminAnalyticsEvents");
 const adminSystemHealth = require("./routes/adminSystemHealth");
 const adminDeployments = require("./routes/adminDeployments");
 const adminPricing = require("./routes/adminPricing");
+const adminClientAgents = require("./routes/adminClientAgents");
 
 
 
@@ -84,6 +85,7 @@ app.use("/admin", verifyToken, adminAnalyticsEvents(pool, renderPage));
 app.use("/admin", verifyToken, adminSystemHealth(pool, renderPage));
 app.use("/admin", verifyToken, adminDeployments(pool, renderPage));
 app.use("/admin", verifyToken, adminPricing(pool, renderPage));
+app.use("/admin", verifyToken, adminClientAgents(pool, renderPage));
 
 
 
