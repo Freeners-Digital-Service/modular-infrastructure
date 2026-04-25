@@ -1151,6 +1151,32 @@ CONNECT SYSTEMS TO CLIENTS Tables
 })();
 
 
+/* =========================
+   WEBSITES CATALOG TABLE
+========================= */
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS websites_catalog (
+        id SERIAL PRIMARY KEY,
+
+        name TEXT,
+        description TEXT,
+
+        base_price NUMERIC,
+        monthly_price NUMERIC,
+        yearly_price NUMERIC,
+
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Websites catalog ready");
+  } catch (err) {
+    console.error("Websites catalog error:", err);
+  }
+})();
+
 
 /* =========================
    ROOT
