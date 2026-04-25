@@ -834,11 +834,12 @@ async function getMarketplaceProducts() {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS deployments (
-        id SERIAL PRIMARY KEY,
-        system_id INTEGER,
-        version TEXT,
-        status TEXT,
-        deployed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id SERIAL PRIMARY KEY,
+    system_id INTEGER,
+    version TEXT,
+    status TEXT,
+    description TEXT,
+    deployed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
