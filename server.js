@@ -1177,6 +1177,33 @@ CONNECT SYSTEMS TO CLIENTS Tables
   }
 })();
 
+/* =========================
+   CLIENT PRODUCTS (WEBSITES)
+========================= */
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS client_products (
+        id SERIAL PRIMARY KEY,
+
+        client_id INTEGER,
+        website_id INTEGER,          -- from websites_catalog
+
+        domain_type TEXT,            -- existing | external
+        domain_name TEXT,
+
+        status TEXT DEFAULT 'active',
+
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Client products table ready");
+  } catch (err) {
+    console.error("Client products table error:", err);
+  }
+})();
+
 
 /* =========================
    ROOT
