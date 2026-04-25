@@ -40,6 +40,7 @@ const adminDeployments = require("./routes/adminDeployments");
 const adminPricing = require("./routes/adminPricing");
 const adminClientAgents = require("./routes/adminClientAgents");
 const adminClientModules = require("./routes/adminClientModules");
+const systemWebsiteConnections = require("./routes/systemWebsiteConnections");
 
 
 
@@ -88,6 +89,7 @@ app.use("/admin", verifyToken, adminDeployments(pool, renderPage));
 app.use("/admin", verifyToken, adminPricing(pool, renderPage));
 app.use("/admin", verifyToken, adminClientAgents(pool, renderPage));
 app.use("/admin", verifyToken, adminClientModules(pool, renderPage));
+app.use("/api/system-website", systemWebsiteConnections(pool));
 
 
 
