@@ -614,6 +614,7 @@ async function getMarketplaceProducts() {
   }
 })();
 
+
 /* =========================
    PRICING TABLE
 ========================= */
@@ -622,12 +623,25 @@ async function getMarketplaceProducts() {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS pricing (
         id SERIAL PRIMARY KEY,
-        system_id INTEGER,
-        module_id INTEGER,
-        price NUMERIC,
-        billing_cycle TEXT,
+
+        system_id INTEGER,     -- setup fee only
+        module_id INTEGER,     -- module monthly
+        agent_id INTEGER,      -- agent monthly
+
+        setup_fee NUMERIC,     -- one-time (system)
+        price NUMERIC,         -- monthly (module / agent)
+
+        billing_cycle TEXT,    -- monthly
+
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+
+    // Safe update for existing table
+    await pool.query(`
+      ALTER TABLE pricing
+      ADD COLUMN IF NOT EXISTS agent_id INTEGER,
+      ADD COLUMN IF NOT EXISTS setup_fee NUMERIC;
     `);
 
     console.log("Pricing table ready");
@@ -635,7 +649,6 @@ async function getMarketplaceProducts() {
     console.error("Pricing table error:", err);
   }
 })();
-
 
 
 /* =========================
