@@ -59,7 +59,7 @@ function systemWebsiteConnections(pool) {
           });
         }
 
-        // 6. Reconnect if previously disconnected
+        // 6. Reconnect
         await pool.query(
           `UPDATE system_website_connections 
            SET status = 'connected', connected_at = CURRENT_TIMESTAMP
@@ -92,63 +92,60 @@ function systemWebsiteConnections(pool) {
     }
   });
 
-  return router;
-}
-
-
-/* =========================
+  /* =========================
      DISCONNECT SYSTEM → WEBSITE
   ========================= */
 
-router.post("/disconnect", async (req, res) => {
-  try {
-    const { client_id, system_id, website_id } = req.body;
+  router.post("/disconnect", async (req, res) => {
+    try {
+      const { client_id, system_id, website_id } = req.body;
 
-    if (!client_id || !system_id || !website_id) {
-      return res.status(400).json({
-        error: "client_id, system_id, website_id required"
+      if (!client_id || !system_id || !website_id) {
+        return res.status(400).json({
+          error: "client_id, system_id, website_id required"
+        });
+      }
+
+      const existing = await pool.query(
+        `SELECT * FROM system_website_connections
+         WHERE client_id = $1 AND system_id = $2 AND website_id = $3`,
+        [client_id, system_id, website_id]
+      );
+
+      if (existing.rows.length === 0) {
+        return res.status(404).json({
+          error: "Connection not found"
+        });
+      }
+
+      const connection = existing.rows[0];
+
+      if (connection.status === "disconnected") {
+        return res.status(400).json({
+          error: "Already disconnected"
+        });
+      }
+
+      await pool.query(
+        `UPDATE system_website_connections
+         SET status = 'disconnected'
+         WHERE id = $1`,
+        [connection.id]
+      );
+
+      res.json({
+        message: "System disconnected from website successfully"
+      });
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        error: "Disconnect failed"
       });
     }
+  });
 
-    // check existing connection
-    const existing = await pool.query(
-      `SELECT * FROM system_website_connections
-       WHERE client_id = $1 AND system_id = $2 AND website_id = $3`,
-      [client_id, system_id, website_id]
-    );
-
-    if (existing.rows.length === 0) {
-      return res.status(404).json({
-        error: "Connection not found"
-      });
-    }
-
-    const connection = existing.rows[0];
-
-    if (connection.status === "disconnected") {
-      return res.status(400).json({
-        error: "Already disconnected"
-      });
-    }
-
-    // update status
-    await pool.query(
-      `UPDATE system_website_connections
-       SET status = 'disconnected'
-       WHERE id = $1`,
-      [connection.id]
-    );
-
-    res.json({
-      message: "System disconnected from website successfully"
-    });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      error: "Disconnect failed"
-    });
-  }
-});
+  return router;
+}
 
 module.exports = systemWebsiteConnections;
