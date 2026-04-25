@@ -543,7 +543,34 @@ async function getMarketplaceProducts() {
   } catch (err) {
     console.error("Clients table error:", err);
   }
-})(); 
+})();
+
+
+/* =========================
+   CLIENT AGENTS TABLE
+========================= */
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS client_agents (
+        id SERIAL PRIMARY KEY,
+
+        client_id INTEGER,
+        system_id INTEGER,
+        module_id INTEGER,
+        agent_id INTEGER,
+
+        status TEXT DEFAULT 'active',   -- active / inactive
+
+        activated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Client agents table ready");
+  } catch (err) {
+    console.error("Client agents table error:", err);
+  }
+})();
 
 
 
