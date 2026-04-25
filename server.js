@@ -42,6 +42,7 @@ const adminClientAgents = require("./routes/adminClientAgents");
 const adminClientModules = require("./routes/adminClientModules");
 const systemWebsiteConnections = require("./routes/systemWebsiteConnections");
 const websitesCatalog = require("./routes/websitesCatalog");
+const clientProducts = require("./routes/clientProducts");
 
 
 
@@ -93,6 +94,7 @@ app.use("/admin", verifyToken, adminClientAgents(pool, renderPage));
 app.use("/admin", verifyToken, adminClientModules(pool, renderPage));
 app.use("/api/system-website", systemWebsiteConnections(pool));
 app.use("/api/websites", websitesCatalog(pool));
+app.use("/api/client-products", clientProducts(pool));
 
 
 
