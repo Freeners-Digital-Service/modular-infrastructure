@@ -1232,7 +1232,13 @@ CONNECT SYSTEMS TO CLIENTS Tables
       );
     `);
 
-    console.log("System-Website connection table ready");
+    // ✅ ADD NEW COLUMN (SAFE UPDATE)
+    await pool.query(`
+      ALTER TABLE system_website_connections
+      ADD COLUMN IF NOT EXISTS client_product_id INTEGER;
+    `);
+
+    console.log("System-Website connection table ready + updated");
   } catch (err) {
     console.error("System-Website connection error:", err);
   }
