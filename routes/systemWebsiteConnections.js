@@ -4,17 +4,17 @@ function systemWebsiteConnections(pool) {
   const router = express.Router();
 
   /* =========================
-     CONNECT SYSTEM → WEBSITE
+     CONNECT SYSTEM  WEBSITE
   ========================= */
 
   router.post("/connect", async (req, res) => {
     try {
-      const { client_id, system_id, website_id } = req.body;
+      const { client_id, system_id, client_product_id } = req.body;
 
       // 1. Validate input
-      if (!client_id || !system_id || !website_id) {
+      if (!client_id || !system_id || !client_product_id) {
         return res.status(400).json({
-          error: "client_id, system_id, website_id required"
+          error: "client_id, system_id, client_product_id required"
         });
       }
 
@@ -30,10 +30,10 @@ function systemWebsiteConnections(pool) {
         });
       }
 
-      // 3. Verify client owns the website
+      // 3. Verify client owns the website (client product)
       const websiteCheck = await pool.query(
         `SELECT * FROM client_products WHERE client_id = $1 AND id = $2`,
-        [client_id, website_id]
+        [client_id, client_product_id]
       );
 
       if (websiteCheck.rows.length === 0) {
@@ -45,8 +45,8 @@ function systemWebsiteConnections(pool) {
       // 4. Check if connection already exists
       const existing = await pool.query(
         `SELECT * FROM system_website_connections 
-         WHERE client_id = $1 AND system_id = $2 AND website_id = $3`,
-        [client_id, system_id, website_id]
+         WHERE client_id = $1 AND system_id = $2 AND client_product_id = $3`,
+        [client_id, system_id, client_product_id]
       );
 
       if (existing.rows.length > 0) {
@@ -75,9 +75,9 @@ function systemWebsiteConnections(pool) {
       // 7. Create new connection
       await pool.query(
         `INSERT INTO system_website_connections 
-         (client_id, system_id, website_id, status)
+         (client_id, system_id, client_product_id, status)
          VALUES ($1, $2, $3, 'connected')`,
-        [client_id, system_id, website_id]
+        [client_id, system_id, client_product_id]
       );
 
       res.json({
@@ -93,23 +93,23 @@ function systemWebsiteConnections(pool) {
   });
 
   /* =========================
-     DISCONNECT SYSTEM → WEBSITE
+     DISCONNECT SYSTEM  WEBSITE
   ========================= */
 
   router.post("/disconnect", async (req, res) => {
     try {
-      const { client_id, system_id, website_id } = req.body;
+      const { client_id, system_id, client_product_id } = req.body;
 
-      if (!client_id || !system_id || !website_id) {
+      if (!client_id || !system_id || !client_product_id) {
         return res.status(400).json({
-          error: "client_id, system_id, website_id required"
+          error: "client_id, system_id, client_product_id required"
         });
       }
 
       const existing = await pool.query(
         `SELECT * FROM system_website_connections
-         WHERE client_id = $1 AND system_id = $2 AND website_id = $3`,
-        [client_id, system_id, website_id]
+         WHERE client_id = $1 AND system_id = $2 AND client_product_id = $3`,
+        [client_id, system_id, client_product_id]
       );
 
       if (existing.rows.length === 0) {
