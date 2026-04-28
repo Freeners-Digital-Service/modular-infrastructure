@@ -96,7 +96,7 @@ app.use("/admin", verifyToken, adminClientModules(pool, renderPage));
 app.use("/api/system-website", systemWebsiteConnections(pool));
 app.use("/api/websites", websitesCatalog(pool));
 app.use("/api/client-products", clientProducts(pool));
-app.use("/admin", adminSystemConnections(pool, renderPage));
+app.use("/admin", verifyToken, adminSystemConnections(pool, renderPage));
 
 
 
