@@ -659,26 +659,65 @@ async function getMarketplaceProducts() {
 
 
 /* =========================
-    BILLING TABLE
+ BILLING TABLE
 ========================= */
 
 (async () => {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS billing (
-        id SERIAL PRIMARY KEY,
-        client_id INTEGER,
-        system_id INTEGER,
-        amount NUMERIC,
-        status TEXT DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
+ try {
+ await pool.query(`
+ CREATE TABLE IF NOT EXISTS billing (
+ id SERIAL PRIMARY KEY,
 
-    console.log("Billing table ready");
-  } catch (err) {
-    console.error("Billing table error:", err);
-  }
+ client_id INTEGER,
+
+ -- CORE ITEM IDENTIFICATION
+ item_type TEXT,  -- 'website' | 'system' | 'module' | 'agent'
+
+ -- RELATION LINKS
+ client_product_id INTEGER,  -- website
+ system_id INTEGER,
+ module_id INTEGER,
+ agent_id INTEGER,
+
+ -- BILLING DETAILS
+ amount NUMERIC,
+ billing_cycle TEXT, -- 'one_time' | 'monthly'
+ is_initial BOOLEAN DEFAULT false, -- first payment flag
+
+ status TEXT DEFAULT 'pending', -- pending | paid | failed
+
+ -- PAYMENT TRACKING
+ tx_ref TEXT,
+ flutterwave_tx_id TEXT,
+ payment_method TEXT,
+
+ -- META
+ description TEXT,
+
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+ );
+ `);
+
+ // ✅ SAFE UPDATE (FOR EXISTING DB)
+ await pool.query(`
+ ALTER TABLE billing
+ ADD COLUMN IF NOT EXISTS item_type TEXT,
+ ADD COLUMN IF NOT EXISTS client_product_id INTEGER,
+ ADD COLUMN IF NOT EXISTS system_id INTEGER,
+ ADD COLUMN IF NOT EXISTS module_id INTEGER,
+ ADD COLUMN IF NOT EXISTS agent_id INTEGER,
+ ADD COLUMN IF NOT EXISTS billing_cycle TEXT,
+ ADD COLUMN IF NOT EXISTS is_initial BOOLEAN DEFAULT false,
+ ADD COLUMN IF NOT EXISTS tx_ref TEXT,
+ ADD COLUMN IF NOT EXISTS flutterwave_tx_id TEXT,
+ ADD COLUMN IF NOT EXISTS payment_method TEXT,
+ ADD COLUMN IF NOT EXISTS description TEXT;
+ `);
+
+ console.log("Billing table ready (FINAL STRUCTURE)");
+ } catch (err) {
+ console.error("Billing table error:", err);
+ }
 })();
 
 
