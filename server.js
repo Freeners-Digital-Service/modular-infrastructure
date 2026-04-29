@@ -664,7 +664,7 @@ async function getMarketplaceProducts() {
 
 (async () => {
  try {
- await pool.query(`
+ await pool.query(`git
  CREATE TABLE IF NOT EXISTS billing (
  id SERIAL PRIMARY KEY,
 
