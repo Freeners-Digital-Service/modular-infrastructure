@@ -1200,6 +1200,37 @@ CONNECT SYSTEMS TO CLIENTS Tables
   }
 })();
 
+/* =========================
+   SYSTEMS CATALOG TABLE
+========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS systems_catalog (
+        id TEXT PRIMARY KEY,
+
+        name TEXT,
+        full_name TEXT,
+        type TEXT,
+        category TEXT,
+        label TEXT,
+
+        description TEXT,
+
+        setup_fee NUMERIC,
+        monthly_fee NUMERIC,
+
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Systems catalog table ready");
+  } catch (err) {
+    console.error("Systems catalog table error:", err);
+  }
+})();
+
 
 /* =========================
    WEBSITES CATALOG TABLE
