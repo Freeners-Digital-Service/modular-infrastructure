@@ -1242,19 +1242,22 @@ CONNECT SYSTEMS TO CLIENTS Tables
         id SERIAL PRIMARY KEY,
 
         name TEXT,
+        type TEXT,
+        category TEXT,
+        label TEXT,
+
         description TEXT,
 
-        base_price NUMERIC,
-        monthly_price NUMERIC,
-        yearly_price NUMERIC,
+        setup_fee NUMERIC,
+        monthly_fee NUMERIC,
 
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
-    console.log("Websites catalog ready");
+    console.log("Websites catalog table ready (clean)");
   } catch (err) {
-    console.error("Websites catalog error:", err);
+    console.error("Websites catalog table error:", err);
   }
 })();
 
