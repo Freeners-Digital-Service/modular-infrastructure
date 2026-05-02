@@ -95,15 +95,17 @@ function billingRoutes(pool, verifyToken) {
         }
       );
 
-      const data = await response.json();
-      res.json(data);
+   const data = await response.json();
+    res.json(data);
 
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Payment failed" });
-    }
+  } catch (err) {
+    console.log("ERROR:", err);
+    res.status(500).json({
+      error: err.message
+    });
+  }
+
   });
-
   return router;
 }
 
