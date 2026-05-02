@@ -14,7 +14,6 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
-const products = require("./products/products");
 const path = require("path");
 const multer = require("multer");
 const adminMain = require("./routes/adminMain");
@@ -1780,14 +1779,6 @@ app.post("/api/setup/submit", upload.single("logo_file"), async (req, res) => {
   }
 });
 
-
-   /*==================
-     API aaproducts
-     ============= */
-
-     app.get("/api/products", (req, res) => {
-  res.json(products);
-});
 
  
 
