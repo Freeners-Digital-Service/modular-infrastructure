@@ -52,6 +52,7 @@ const systemsCatalog = require("./routes/systemsCatalog");
 
 
 
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
@@ -101,6 +102,7 @@ app.use("/api/client-products", clientProducts(pool));
 app.use("/admin", verifyToken, adminSystemConnections(pool, renderPage));
 app.use("/api", billingRoutes(pool, verifyToken));
 app.use("/api", systemsCatalog(pool));
+
 
 
 
