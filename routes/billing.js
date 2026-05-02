@@ -105,6 +105,104 @@ function billingRoutes(pool, verifyToken) {
     });
   }
 
+
+  /* =========================
+   FLUTTERWAVE WEBHOOK
+========================= */
+
+  router.post("/webhook/flutterwave", async (req, res) => {
+  try {
+    const secretHash = process.env.FLUTTERWAVE_SECRET_HASH;
+    const signature = req.headers["verif-hash"];
+
+    if (!signature || signature !== secretHash) {
+      return res.status(401).send("Unauthorized");
+    }
+
+    const payload = req.body;
+
+    if (
+      payload.event === "charge.completed" &&
+      payload.data.status === "successful"
+    ) {
+      const tx_ref = payload.data.tx_ref;
+      const transaction_id = payload.data.id;
+
+      // 🔍 Get billing record first
+      const billingRes = await pool.query(
+        `SELECT * FROM billing WHERE tx_ref = $1`,
+        [tx_ref]
+      );
+
+      if (billingRes.rows.length === 0) {
+        return res.sendStatus(200);
+      }
+
+      const billing = billingRes.rows[0];
+
+      // 🔐 Verify with Flutterwave
+      const verifyRes = await fetch(
+        `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`
+          }
+        }
+      );
+
+      const verifyData = await verifyRes.json();
+
+      if (
+        verifyData.status === "success" &&
+        verifyData.data.status === "successful"
+      ) {
+        // ✅ Update billing
+        await pool.query(
+          `UPDATE billing
+           SET status = 'paid',
+               flutterwave_tx_id = $1,
+               payment_method = $2
+           WHERE tx_ref = $3`,
+          [
+            transaction_id,
+            verifyData.data.payment_type,
+            tx_ref
+          ]
+        );
+
+        // 🔥 CREATE PRODUCT / SYSTEM FOR CLIENT
+
+        if (billing.item_type === "website") {
+          await pool.query(
+            `INSERT INTO client_products (client_id, website_id, status)
+             VALUES ($1, $2, 'configuring')`,
+            [billing.client_id, billing.client_product_id]
+          );
+        }
+
+        if (billing.item_type === "system") {
+          await pool.query(
+            `INSERT INTO client_systems (client_id, system_id, status)
+             VALUES ($1, $2, 'configuring')`,
+            [billing.client_id, billing.system_id]
+          );
+        }
+
+        console.log("✅ Payment confirmed & product unlocked:", tx_ref);
+      }
+    }
+
+    res.sendStatus(200);
+
+  } catch (err) {
+    console.error("Webhook error:", err);
+    res.sendStatus(500);
+  }
+});
+
+
+
   });
   return router;
 }
