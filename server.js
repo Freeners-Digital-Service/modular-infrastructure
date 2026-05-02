@@ -46,6 +46,7 @@ const clientProducts = require("./routes/clientProducts");
 const adminSystemConnections = require("./routes/adminSystemConnections");
 const billingRoutes = require("./routes/billing");
 const systemsCatalog = require("./routes/systemsCatalog");
+const seedSystemsCatalog = require("./db/systemsCatalogSeed");
 
 
 
@@ -102,6 +103,7 @@ app.use("/api/client-products", clientProducts(pool));
 app.use("/admin", verifyToken, adminSystemConnections(pool, renderPage));
 app.use("/api", billingRoutes(pool, verifyToken));
 app.use("/api", systemsCatalog(pool));
+await seedSystemsCatalog(pool);
 
 
 
