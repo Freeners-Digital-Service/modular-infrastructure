@@ -98,7 +98,7 @@ app.use("/api/system-website", systemWebsiteConnections(pool));
 app.use("/api/websites", websitesCatalog(pool));
 app.use("/api/client-products", clientProducts(pool));
 app.use("/admin", verifyToken, adminSystemConnections(pool, renderPage));
-app.use("/api", billingRoutes(pool, verifyToken));
+app.use("/api", billingRoutes(pool));
 app.use("/api", systemsCatalog(pool));
 
 

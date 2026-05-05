@@ -1,14 +1,14 @@
 const express = require("express");
 const fetch = require("node-fetch");
 
-function billingRoutes(pool, verifyToken) {
+function billingRoutes(pool) {
   const router = express.Router();
 
   /* =========================
      INITIATE PAYMENT
   ========================= */
 
-  router.post("/pay", verifyToken, async (req, res) => {
+ router.post("/pay", async (req, res) => {
     try {
       const {
         client_id,
@@ -41,6 +41,25 @@ function billingRoutes(pool, verifyToken) {
         amount = product.setup_fee + product.monthly_fee;
         description = "Website setup + first month";
       }
+
+      // 🔥 SYSTEM BILLING
+if (system_id) {
+  const result = await pool.query(
+    `SELECT * FROM systems_catalog WHERE id = $1`,
+    [system_id]
+  );
+
+  if (result.rows.length === 0) {
+    return res.status(404).json({
+      error: "System not found"
+    });
+  }
+
+  const system = result.rows[0];
+
+  amount = system.setup_fee + system.monthly_fee;
+  description = system.name + " setup + first month";
+}
 
       // ⚠️ FUTURE: system / module / agent here
 
