@@ -57,8 +57,12 @@ if (system_id) {
 
   const system = result.rows[0];
 
-  amount = system.setup_fee + system.monthly_fee;
+  amount = Number(system.setup_fee) + Number(system.monthly_fee);
   description = system.name + " setup + first month";
+  // debug logs
+  console.log("ITEM TYPE:", item_type);
+console.log("SYSTEM ID:", system_id);
+console.log("AMOUNT:", amount);
 }
 
       // ⚠️ FUTURE: system / module / agent here
