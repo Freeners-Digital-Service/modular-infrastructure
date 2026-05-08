@@ -513,33 +513,62 @@ async function getMarketplaceProducts() {
 
 
 /* =========================
-   SETUP TABLE
+   SETUP SUBMISSIONS TABLE
 ========================= */
 
 (async () => {
   try {
+
     await pool.query(`
       CREATE TABLE IF NOT EXISTS setups (
+
         id SERIAL PRIMARY KEY,
-        product_id INTEGER,
+
+        /* PURCHASE INFO */
+        item_type TEXT,
+
+        system_id TEXT,
+        website_id TEXT,
+
+        system_name TEXT,
+        website_name TEXT,
+
+        category TEXT,
+        label TEXT,
+
+        /* CLIENT INFO */
+        business_name TEXT,
+        business_email TEXT,
+        phone TEXT,
+
+        logo TEXT,
+        brand_color TEXT,
+        domain TEXT,
+
+        /* OPTIONAL AUTH */
         email TEXT,
         password TEXT,
+
+        /* FLEXIBLE EXTRA DATA */
         data JSONB,
-        logo TEXT,
+
+        /* FLOW */
         step INTEGER DEFAULT 1,
-        status TEXT DEFAULT 'draft',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(product_id, email)
+        status TEXT DEFAULT 'pending',
+
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
       );
     `);
 
-    console.log("Setup table ready");
+    console.log("Setup submissions table ready");
 
   } catch (err) {
+
     console.error("Setup table error:", err);
+
   }
 })();
-
 
 
  /*==============
