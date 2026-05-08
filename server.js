@@ -46,6 +46,7 @@ const adminSystemConnections = require("./routes/adminSystemConnections");
 const billingRoutes = require("./routes/billing");
 const systemsCatalog = require("./routes/systemsCatalog");
 const seedSystemsCatalog = require("./db/systemsCatalogSeed");
+const setupRoutes = require("./routes/setupRoutes");
 
 
 
@@ -100,6 +101,7 @@ app.use("/api/client-products", clientProducts(pool));
 app.use("/admin", verifyToken, adminSystemConnections(pool, renderPage));
 app.use("/api", billingRoutes(pool));
 app.use("/api", systemsCatalog(pool));
+app.use("/api/setup", setupRoutes(pool, upload));
 
 
 
