@@ -1,5 +1,8 @@
 const express = require("express");
 
+const systemLaunchForm =
+require("../db/systemLaunchForm");
+
 function setupRoutes(pool, upload) {
 
   const router = express.Router();
@@ -226,6 +229,33 @@ function setupRoutes(pool, upload) {
 
     }
   });
+
+
+/* =========================
+   GET SYSTEM LAUNCH FORM
+========================= */
+
+router.get("/form/system", async (req, res) => {
+
+  try {
+
+    res.json({
+      success: true,
+      form: systemLaunchForm
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to load system launch form"
+    });
+
+  }
+
+});
+
 
   /* =========================
      SUBMIT SETUP
