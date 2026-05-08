@@ -524,7 +524,7 @@ async function getMarketplaceProducts() {
 
         id SERIAL PRIMARY KEY,
 
-        /* PURCHASE INFO */
+        /* ITEM INFO */
         item_type TEXT,
 
         system_id TEXT,
@@ -545,14 +545,10 @@ async function getMarketplaceProducts() {
         brand_color TEXT,
         domain TEXT,
 
-        /* OPTIONAL AUTH */
-        email TEXT,
-        password TEXT,
-
         /* FLEXIBLE EXTRA DATA */
         data JSONB,
 
-        /* FLOW */
+        /* FLOW TRACKING */
         step INTEGER DEFAULT 1,
         status TEXT DEFAULT 'pending',
 
