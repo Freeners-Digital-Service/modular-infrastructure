@@ -224,6 +224,59 @@ console.log("AMOUNT:", amount);
   }
 });
 
+/* =========================
+   PAYMENT STATUS
+========================= */
+
+router.get("/payment-status", async (req, res) => {
+
+  try {
+
+    const { tx_ref } = req.query;
+
+    if (!tx_ref) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing tx_ref"
+      });
+    }
+
+    const result = await pool.query(
+      `SELECT * FROM billing
+       WHERE tx_ref = $1`,
+      [tx_ref]
+    );
+
+    if (result.rows.length === 0) {
+
+      return res.json({
+        success: false,
+        status: "not_found"
+      });
+
+    }
+
+    const billing = result.rows[0];
+
+    res.json({
+      success: true,
+      status: billing.status,
+      billing
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      success: false
+    });
+
+  }
+
+});
+
+
 
 
   });
