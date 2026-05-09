@@ -14,6 +14,7 @@ function websitesCatalog(pool) {
         `SELECT 
           id,
           name,
+          full_name,
           type,
           category,
           label,

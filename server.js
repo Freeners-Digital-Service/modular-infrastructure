@@ -1072,28 +1072,6 @@ EMBEDDING TABLE
 })();
 
 
-/* =========================
-CONNECT SYSTEMS TO CLIENTS Tables
-========================= */
-
-(async () => {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS client_systems (
-  id SERIAL PRIMARY KEY,
-  client_id INTEGER,
-  system_id TEXT,
-  status TEXT DEFAULT 'configuring',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-    `);
-
-    console.log("Client systems table ready");
-  } catch (err) {
-    console.error("Client systems table error:", err);
-  }
-})();
-
 
 /* =========================
    TABLE: system_modules
@@ -1231,6 +1209,29 @@ CONNECT SYSTEMS TO CLIENTS Tables
   }
 })();
 
+
+/* =========================
+CONNECT SYSTEMS TO CLIENTS Tables
+========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS client_systems (
+  id SERIAL PRIMARY KEY,
+  client_id INTEGER,
+  system_id TEXT,
+  status TEXT DEFAULT 'configuring',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+    `);
+
+    console.log("Client systems table ready");
+  } catch (err) {
+    console.error("Client systems table error:", err);
+  }
+})();
+
 /* =========================
    SYSTEMS CATALOG TABLE
 ========================= */
@@ -1270,19 +1271,21 @@ CONNECT SYSTEMS TO CLIENTS Tables
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS websites_catalog (
-        id SERIAL PRIMARY KEY,
+  id TEXT PRIMARY KEY,
 
-        name TEXT,
-        type TEXT,
-        category TEXT,
-        label TEXT,
+       name TEXT,
+       full_name TEXT,
 
-        description TEXT,
+       type TEXT,
+       category TEXT,
+       label TEXT,
 
-        setup_fee NUMERIC,
-        monthly_fee NUMERIC,
+       description TEXT,
 
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+       setup_fee NUMERIC,
+       monthly_fee NUMERIC,
+
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -1299,17 +1302,14 @@ CONNECT SYSTEMS TO CLIENTS Tables
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS client_products (
-        id SERIAL PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
 
-        client_id INTEGER,
-        website_id INTEGER,          -- from websites_catalog
+  client_id INTEGER,
+  website_id TEXT,
 
-        domain_type TEXT,            -- existing | external
-        domain_name TEXT,
+  status TEXT DEFAULT 'configuring',
 
-        status TEXT DEFAULT 'active',
-
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
