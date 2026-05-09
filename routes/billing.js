@@ -145,7 +145,7 @@ console.log("AMOUNT:", amount);
     const payload = req.body;
 
     if (
-      payload.event === "charge.completed" &&
+      payload.data &&
       payload.data.status === "successful"
     ) {
       const tx_ref = payload.data.tx_ref;
@@ -204,7 +204,7 @@ console.log("AMOUNT:", amount);
           );
         }
 
-        if (billing.item_type === "system") {
+        if (billing.item_type === "system" || billing.system_id) {
           await pool.query(
             `INSERT INTO client_systems (client_id, system_id, status)
              VALUES ($1, $2, 'configuring')`,
