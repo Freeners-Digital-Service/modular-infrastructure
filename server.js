@@ -1082,7 +1082,7 @@ CONNECT SYSTEMS TO CLIENTS Tables
       CREATE TABLE IF NOT EXISTS client_systems (
         id SERIAL PRIMARY KEY,
         client_id INTEGER,
-        system_id INTEGER,
+        system_id TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
