@@ -150,10 +150,6 @@ console.log(JSON.stringify(payload, null, 2));
 console.log("PAYLOAD STATUS:", payload?.data?.status);
 console.log("PAYLOAD EVENT:", payload?.event);
 
-if (
-  payload.data &&
-  payload.data.status === "successful"
-)
 
     if (
       payload.data &&
@@ -287,24 +283,6 @@ router.get("/payment-status", async (req, res) => {
 
 });
 
-
-router.post("/webhook/flutterwave", async (req, res) => {
-  try {
-    // webhook code...
-  } catch (err) {
-    console.error("Webhook error:", err);
-    res.sendStatus(500);
-  }
-});
-
-router.get("/webhook-test", (req, res) => {
-  console.log("WEBHOOK TEST HIT");
-
-  res.json({
-    success: true,
-    message: "Webhook route working"
-  });
-});
 
 
   });
