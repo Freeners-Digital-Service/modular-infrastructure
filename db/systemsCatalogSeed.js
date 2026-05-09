@@ -85,11 +85,11 @@ async function seedSystemsCatalog(pool) {
 
       ('sys-writing-822','Persuadix','Copywriting Engine'
       ,'system','Content-Creation','Content Creation System'
-      ,'A conversion-focused writing system designed to craft persuasive messaging that drives action, engagement, and response across marketing channels',240,170)
+      ,'A conversion-focused writing system designed to craft persuasive messaging that drives action, engagement, and response across marketing channels',240,170),
 
       ('sys-writing-823','Narrivon','Script Writing Engine'
       ,'system','Content-Creation','Content Creation System'
-      ,'"A narrative-driven system that creates structured scripts for videos, presentations, and storytelling formats with clear flow and engagement hooks',250,160)
+      ,'A narrative-driven system that creates structured scripts for videos, presentations, and storytelling formats with clear flow and engagement hooks',250,160)
 
 
       ON CONFLICT (id) DO NOTHING;
