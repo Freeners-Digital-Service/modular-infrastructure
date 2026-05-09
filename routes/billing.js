@@ -130,6 +130,131 @@ console.log("AMOUNT:", amount);
 
 
   /* =========================
+ VERIFY PAYMENT
+========================= */
+
+router.get("/verify-payment", async (req, res) => {
+
+  try {
+
+    const { transaction_id, tx_ref } = req.query;
+
+    if (!transaction_id || !tx_ref) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing payment info"
+      });
+    }
+
+    const verifyRes = await fetch(
+      `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`
+        }
+      }
+    );
+
+    const verifyData = await verifyRes.json();
+
+    if (
+      verifyData.status !== "success" ||
+      verifyData.data.status !== "successful"
+    ) {
+      return res.json({
+        success: false
+      });
+    }
+
+    /* GET BILLING */
+
+    const billingRes = await pool.query(
+      `SELECT * FROM billing
+       WHERE tx_ref = $1`,
+      [tx_ref]
+    );
+
+    if (billingRes.rows.length === 0) {
+      return res.json({
+        success: false,
+        error: "Billing not found"
+      });
+    }
+
+    const billing = billingRes.rows[0];
+
+    /* UPDATE BILLING */
+
+    await pool.query(
+      `UPDATE billing
+       SET status = 'paid',
+       flutterwave_tx_id = $1,
+       payment_method = $2
+       WHERE tx_ref = $3`,
+      [
+        transaction_id,
+        verifyData.data.payment_type,
+        tx_ref
+      ]
+    );
+
+    /* CREATE CLIENT PRODUCT */
+
+/* WEBSITE */
+
+if (billing.item_type === "website") {
+
+  await pool.query(
+    `INSERT INTO client_products
+    (client_id, website_id, status)
+    VALUES ($1, $2, 'configuring')`,
+    [
+      billing.client_id,
+      billing.client_product_id
+    ]
+  );
+
+}
+
+/* SYSTEM */
+
+if (
+  billing.item_type === "system" ||
+  billing.system_id
+) {
+
+  await pool.query(
+    `INSERT INTO client_systems
+    (client_id, system_id, status)
+    VALUES ($1, $2, 'configuring')`,
+    [
+      billing.client_id,
+      billing.system_id
+    ]
+  );
+
+}
+
+
+    res.json({
+      success: true
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      success: false
+    });
+
+  }
+
+});
+
+
+  /* =========================
    FLUTTERWAVE WEBHOOK
 ========================= */
 
