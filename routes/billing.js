@@ -144,6 +144,17 @@ console.log("AMOUNT:", amount);
 
     const payload = req.body;
 
+console.log("WEBHOOK PAYLOAD:");
+console.log(JSON.stringify(payload, null, 2));
+
+console.log("PAYLOAD STATUS:", payload?.data?.status);
+console.log("PAYLOAD EVENT:", payload?.event);
+
+if (
+  payload.data &&
+  payload.data.status === "successful"
+)
+
     if (
       payload.data &&
       payload.data.status === "successful"
