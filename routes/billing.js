@@ -226,8 +226,8 @@ if (
 
   await pool.query(
     `INSERT INTO client_systems
-    (client_id, system_id, status)
-    VALUES ($1, $2, 'configuring')`,
+    (client_id, system_id)
+    VALUES ($1, $2)`,
     [
       billing.client_id,
       billing.system_id
