@@ -2,6 +2,8 @@ const express = require("express");
 
 const systemLaunchForm =
 require("../db/systemLaunchForm");
+const websitesLaunchForm =
+require("../db/websitesLaunchForm");
 
 function setupRoutes(pool, upload) {
 
@@ -255,6 +257,32 @@ router.get("/form/system", async (req, res) => {
   }
 
 });
+
+/* =========================
+   GET WEBSITE LAUNCH FORM
+========================= */
+
+router.get("/form/website", async (req, res) => {
+
+  try {
+
+    res.json({
+      success: true,
+      form: websitesLaunchForm
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to load website launch form"
+    });
+
+  }
+
+});
+
 
 
   /* =========================
