@@ -9,12 +9,12 @@ function clientProducts(pool) {
 
   router.post("/create", async (req, res) => {
     try {
-      const { client_id, website_id, domain_type, domain_name } = req.body;
+      const { client_id, website_id, selected_plan } = req.body;
 
       // 1. Validate input
-      if (!client_id || !website_id) {
-        return res.status(400).json({
-          error: "client_id and website_id are required"
+      if (!client_id || !website_id || !selected_plan) {
+  return res.status(400).json({
+    error: "client_id, website_id and selected_plan are required"
         });
       }
 
@@ -48,14 +48,13 @@ function clientProducts(pool) {
       // 4. Insert new client product
       const result = await pool.query(
         `INSERT INTO client_products
-         (client_id, website_id, domain_type, domain_name, status)
-         VALUES ($1, $2, $3, $4, 'active')
+         (client_id, website_id, selected_plan, status)
+         VALUES ($1, $2, $3, 'configuring')
          RETURNING *`,
         [
           client_id,
           website_id,
-          domain_type ?? null,
-          domain_name ?? null
+          selected_plan
         ]
       );
 
@@ -86,16 +85,21 @@ function clientProducts(pool) {
           cp.id,
           cp.client_id,
           cp.website_id,
-          cp.domain_type,
-          cp.domain_name,
+          cp.selected_plan,
           cp.status,
           cp.created_at,
 
           w.name,
           w.description,
-          w.base_price,
-          w.monthly_price,
-          w.yearly_price
+          w.setup_fee,
+
+          w.basic_monthly_fee,
+          w.standard_monthly_fee,
+          w.legend_monthly_fee,
+
+          w.basic_features,
+          w.standard_features,
+          w.legend_features
 
         FROM client_products cp
         LEFT JOIN websites_catalog w ON cp.website_id = w.id
@@ -128,9 +132,15 @@ function clientProducts(pool) {
           cp.*,
           w.name,
           w.description,
-          w.base_price,
-          w.monthly_price,
-          w.yearly_price
+          w.setup_fee,
+
+          w.basic_monthly_fee,
+          w.standard_monthly_fee,
+          w.legend_monthly_fee,
+
+          w.basic_features,
+          w.standard_features,
+          w.legend_features
 
         FROM client_products cp
         LEFT JOIN websites_catalog w ON cp.website_id = w.id

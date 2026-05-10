@@ -696,7 +696,7 @@ async function getMarketplaceProducts() {
 
 (async () => {
  try {
- await pool.query(`git
+ await pool.query(`
  CREATE TABLE IF NOT EXISTS billing (
  id SERIAL PRIMARY KEY,
 
@@ -706,13 +706,16 @@ async function getMarketplaceProducts() {
  item_type TEXT,  -- 'website' | 'system' | 'module' | 'agent'
 
  -- RELATION LINKS
- client_product_id INTEGER,  -- website
- system_id INTEGER,
+ client_product_id INTEGER,  
+ website_id TEXT,
+ selected_plan TEXT,
+ system_id TEXT,
  module_id INTEGER,
  agent_id INTEGER,
 
  -- BILLING DETAILS
  amount NUMERIC,
+ plan_price NUMERIC,
  billing_cycle TEXT, -- 'one_time' | 'monthly'
  is_initial BOOLEAN DEFAULT false, -- first payment flag
 
@@ -735,9 +738,13 @@ async function getMarketplaceProducts() {
  ALTER TABLE billing
  ADD COLUMN IF NOT EXISTS item_type TEXT,
  ADD COLUMN IF NOT EXISTS client_product_id INTEGER,
- ADD COLUMN IF NOT EXISTS system_id INTEGER,
+ ADD COLUMN IF NOT EXISTS website_id TEXT,
+ ADD COLUMN IF NOT EXISTS selected_plan TEXT,
+ ADD COLUMN IF NOT EXISTS system_id TEXT,
  ADD COLUMN IF NOT EXISTS module_id INTEGER,
  ADD COLUMN IF NOT EXISTS agent_id INTEGER,
+ ADD COLUMN IF NOT EXISTS amount NUMERIC,
+ ADD COLUMN IF NOT EXISTS plan_price NUMERIC,
  ADD COLUMN IF NOT EXISTS billing_cycle TEXT,
  ADD COLUMN IF NOT EXISTS is_initial BOOLEAN DEFAULT false,
  ADD COLUMN IF NOT EXISTS tx_ref TEXT,
@@ -762,7 +769,9 @@ async function getMarketplaceProducts() {
       CREATE TABLE IF NOT EXISTS pricing (
         id SERIAL PRIMARY KEY,
 
-        system_id INTEGER,     -- setup fee only
+        website_id TEXT,
+        selected_plan TEXT,
+        system_id TEXT,     -- setup fee only
         module_id INTEGER,     -- module monthly
         agent_id INTEGER,      -- agent monthly
 
@@ -778,8 +787,16 @@ async function getMarketplaceProducts() {
     // Safe update for existing table
     await pool.query(`
       ALTER TABLE pricing
-      ADD COLUMN IF NOT EXISTS agent_id INTEGER,
-      ADD COLUMN IF NOT EXISTS setup_fee NUMERIC;
+ADD COLUMN IF NOT EXISTS website_id TEXT,
+ADD COLUMN IF NOT EXISTS selected_plan TEXT,
+
+ADD COLUMN IF NOT EXISTS system_id TEXT,
+ADD COLUMN IF NOT EXISTS module_id INTEGER,
+ADD COLUMN IF NOT EXISTS agent_id INTEGER,
+
+ADD COLUMN IF NOT EXISTS setup_fee NUMERIC,
+ADD COLUMN IF NOT EXISTS price NUMERIC,
+ADD COLUMN IF NOT EXISTS billing_cycle TEXT;
     `);
 
     console.log("Pricing table ready");

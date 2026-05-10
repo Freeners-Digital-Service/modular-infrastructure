@@ -13,7 +13,7 @@ function billingRoutes(pool) {
       const {
         client_id,
         item_type,
-        client_product_id,
+       selected_plan,
         system_id,
         module_id,
         agent_id,
@@ -21,26 +21,49 @@ function billingRoutes(pool) {
       } = req.body;
 
       let amount = 0;
+       let planPrice = 0;
       let description = "";
 
       // 🔹 WEBSITE BILLING
       if (item_type === "website") {
-        const result = await pool.query(
-          `SELECT * FROM client_products WHERE id = $1`,
-          [client_product_id]
-        );
 
-        if (result.rows.length === 0) {
-          return res.status(404).json({
-            error: "Website not found"
-          });
-        }
+  const result = await pool.query(
+    `SELECT * FROM websites_catalog WHERE id = $1`,
+    [website_id]
+  );
 
-        const product = result.rows[0];
+  if (result.rows.length === 0) {
+    return res.status(404).json({
+      error: "Website not found"
+    });
+  }
 
-        amount = product.setup_fee + product.monthly_fee;
-        description = "Website setup + first month";
-      }
+  const website = result.rows[0];
+
+  let monthlyFee = 0;
+
+  if (selected_plan === "basic") {
+    monthlyFee = Number(website.basic_monthly_fee);
+  }
+
+  if (selected_plan === "standard") {
+    monthlyFee = Number(website.standard_monthly_fee);
+  }
+
+  if (selected_plan === "legend") {
+    monthlyFee = Number(website.legend_monthly_fee);
+  }
+
+  amount =
+    Number(website.setup_fee) +
+    monthlyFee;
+
+    planPrice = monthlyFee;
+
+  description =
+    `${website.name} setup + first month (${selected_plan} plan)`;
+}
+
 
       // 🔥 SYSTEM BILLING
 if (system_id) {
@@ -59,10 +82,7 @@ if (system_id) {
 
   amount = Number(system.setup_fee) + Number(system.monthly_fee);
   description = system.name + " setup + first month";
-  // debug logs
-  console.log("ITEM TYPE:", item_type);
-console.log("SYSTEM ID:", system_id);
-console.log("AMOUNT:", amount);
+ 
 }
 
       // ⚠️ FUTURE: system / module / agent here
@@ -76,23 +96,57 @@ console.log("AMOUNT:", amount);
       const tx_ref = "freener_" + Date.now();
 
       // 🔹 CREATE BILLING (PENDING)
-      await pool.query(
-        `INSERT INTO billing 
-        (client_id, item_type, client_product_id, system_id, module_id, agent_id,
-         amount, billing_cycle, is_initial, status, tx_ref, description)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,'one_time',true,'pending',$8,$9)`,
-        [
-          client_id,
-          item_type,
-          client_product_id,
-          system_id,
-          module_id,
-          agent_id,
-          amount,
-          tx_ref,
-          description
-        ]
-      );
+await pool.query(
+  `INSERT INTO billing (
+    client_id, item_type,
+
+    client_product_id,
+    website_id,
+    selected_plan,
+
+    system_id,
+    module_id,
+    agent_id,
+
+    amount,
+    plan_price,
+
+    billing_cycle,
+    is_initial,
+    status,
+
+    tx_ref,
+    description
+  )
+  VALUES (
+    $1,$2,$3,$4,$5,
+    $6,$7,$8,
+    $9,$10,
+    'one_time',
+    true,
+    'pending',
+    $11,$12
+  )`,
+  [
+    client_id,
+    item_type,
+
+    client_product_id ?? null,
+    website_id ?? null,
+    selected_plan ?? null,
+
+    system_id ?? null,
+    module_id ?? null,
+    agent_id ?? null,
+
+    amount,
+    planPrice ?? null,
+
+    tx_ref,
+    description
+  ]
+);
+
 
       // 🔹 FLUTTERWAVE
       const response = await fetch(

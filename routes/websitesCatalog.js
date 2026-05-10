@@ -11,19 +11,28 @@ function websitesCatalog(pool) {
       const { id } = req.params;
 
       const result = await pool.query(
-        `SELECT 
-          id,
-          name,
-          full_name,
-          type,
-          category,
-          label,
-          description,
-          setup_fee,
-          monthly_fee
-         FROM websites_catalog
-         WHERE id = $1`,
-        [id]
+        `SELECT
+           id,
+           name,
+           full_name,
+           type,
+           category,
+           label,
+           description,
+
+           setup_fee,
+
+           basic_monthly_fee,
+           standard_monthly_fee,
+           legend_monthly_fee,
+
+           basic_features,
+           standard_features,
+           legend_features
+
+           FROM websites_catalog
+           WHERE id = $1`,
+           [id]
       );
 
       if (result.rows.length === 0) {
