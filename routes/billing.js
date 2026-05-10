@@ -11,14 +11,19 @@ function billingRoutes(pool) {
  router.post("/pay", async (req, res) => {
     try {
       const {
-        client_id,
-        item_type,
-       selected_plan,
-        system_id,
-        module_id,
-        agent_id,
-        email
-      } = req.body;
+      client_id,
+      item_type,
+
+      website_id,
+      selected_plan,
+
+      client_product_id,
+      system_id,
+      module_id,
+      agent_id,
+
+      email
+    } = req.body;
 
       let amount = 0;
        let planPrice = 0;
@@ -98,7 +103,8 @@ if (system_id) {
       // 🔹 CREATE BILLING (PENDING)
 await pool.query(
   `INSERT INTO billing (
-    client_id, item_type,
+    client_id, 
+    item_type,
 
     client_product_id,
     website_id,
@@ -250,23 +256,60 @@ await pool.query(
 
         // 🔥 CREATE PRODUCT / SYSTEM FOR CLIENT
 
-        if (billing.item_type === "website") {
-          await pool.query(
-            `INSERT INTO client_products (client_id, website_id, status)
-             VALUES ($1, $2, 'configuring')`,
-            [billing.client_id, billing.client_product_id]
-          );
-        }
+if (billing.item_type === "website") {
 
-        if (billing.item_type === "system" || billing.system_id) {
-          await pool.query(
-            `INSERT INTO client_systems (client_id, system_id, status)
-             VALUES ($1, $2, 'configuring')`,
-            [billing.client_id, billing.system_id]
-          );
-        }
+  // Prevent duplicate website provisioning
+  const existingWebsite = await pool.query(
+    `SELECT * FROM client_products
+     WHERE client_id = $1
+     AND website_id = $2`,
+    [billing.client_id, billing.website_id]
+  );
 
-        console.log("✅ Payment confirmed & product unlocked:", tx_ref);
+  if (existingWebsite.rows.length === 0) {
+    await pool.query(
+      `INSERT INTO client_products
+      (
+        client_id,
+        website_id,
+        selected_plan,
+        status
+      )
+      VALUES ($1, $2, $3, 'configuring')`,
+      [
+        billing.client_id,
+        billing.website_id,
+        billing.selected_plan
+      ]
+    );
+  }
+}
+
+if (billing.item_type === "system" || billing.system_id) {
+
+  // Prevent duplicate system provisioning
+  const existingSystem = await pool.query(
+    `SELECT * FROM client_systems
+     WHERE client_id = $1
+     AND system_id = $2`,
+    [billing.client_id, billing.system_id]
+  );
+
+  if (existingSystem.rows.length === 0) {
+    await pool.query(
+      `INSERT INTO client_systems
+      (client_id, system_id, status)
+      VALUES ($1, $2, 'configuring')`,
+      [
+        billing.client_id,
+        billing.system_id
+      ]
+    );
+  }
+}
+
+console.log("✅ Payment confirmed & product unlocked:", tx_ref);
+
       }
     }
 
