@@ -1273,19 +1273,26 @@ CONNECT SYSTEMS TO CLIENTS Tables
       CREATE TABLE IF NOT EXISTS websites_catalog (
   id TEXT PRIMARY KEY,
 
-       name TEXT,
-       full_name TEXT,
+  name TEXT,
+  full_name TEXT,
 
-       type TEXT,
-       category TEXT,
-       label TEXT,
+  type TEXT,
+  category TEXT,
+  label TEXT,
 
-       description TEXT,
+  description TEXT,
 
-       setup_fee NUMERIC,
-       monthly_fee NUMERIC,
+  setup_fee NUMERIC,
 
-       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  basic_monthly_fee NUMERIC,
+  standard_monthly_fee NUMERIC,
+  legend_monthly_fee NUMERIC,
+
+  basic_features TEXT,
+  standard_features TEXT,
+  legend_features TEXT,
+
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -1306,6 +1313,8 @@ CONNECT SYSTEMS TO CLIENTS Tables
 
   client_id INTEGER,
   website_id TEXT,
+
+  selected_plan TEXT,
 
   status TEXT DEFAULT 'configuring',
 
