@@ -52,7 +52,44 @@ const websitesLaunchForm = {
       name: "logo_file",
       type: "file",
       required: false
-    }
+    },
+
+    {
+  label: "Business Industry",
+  name: "business_industry",
+  type: "text",
+  required: false,
+  placeholder: "e.g Restaurant, Real Estate, Finance"
+},
+
+{
+  label: "Business Address (Optional)",
+  name: "business_address",
+  type: "text",
+  required: false,
+  placeholder: "Enter business address"
+},
+
+{
+  label: "Social Media Links (Optional)",
+  name: "social_links",
+  type: "text",
+  required: false,
+  placeholder: "Instagram, Facebook, LinkedIn..."
+},
+
+{
+  label: "Preferred Contact Method",
+  name: "contact_method",
+  type: "select",
+  required: false,
+  options: [
+    "Email",
+    "Phone",
+    "WhatsApp"
+  ]
+}
+
 
   ]
 
