@@ -100,8 +100,8 @@ app.use("/api/system-website", systemWebsiteConnections(pool));
 app.use("/api/websites", websitesCatalog(pool));
 app.use("/api/client-products", clientProducts(pool));
 app.use("/admin", verifyToken, adminSystemConnections(pool, renderPage));
-app.use("/api/billing", billingRoutes(pool));
-app.use("/api/systems", systemsCatalog(pool));
+app.use("/api", billingRoutes(pool));
+app.use("/api", systemsCatalog(pool));
 app.use("/api/setup", setupRoutes(pool, upload));
 
 
