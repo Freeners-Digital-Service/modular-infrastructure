@@ -168,7 +168,7 @@ await pool.query(
             amount,
             currency: "USD",
             redirect_url:
-              "https://freeners-ui-site.netlify.app/payment-success.html",
+              `https://freeners-ui-site.netlify.app/payment-success.html?type=${item_type}`,
             customer: { email },
             customizations: {
               title: "Freener Payment",
