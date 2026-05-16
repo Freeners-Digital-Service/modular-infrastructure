@@ -92,9 +92,24 @@ function adminMain(pool, renderPage) {
                     <p><strong>Brand Color:</strong> ${escapeHtml(setup.brand_color || "-")}</p>
                     <p><strong>Domain:</strong> ${escapeHtml(setup.domain || "-")}</p>
 
-                    ${setup.logo ? `<p><strong>Logo:</strong><br><img src="${escapeHtml(setup.logo)}" alt="logo" style="max-width:120px; margin-top:10px; border-radius:10px;"></p>` : ""}
-
-                    <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
+                    ${setup.logo ? `
+     <p>
+     <strong>Logo:</strong><br>
+     <img
+     src="https://modular-infrastructure.onrender.com${escapeHtml(setup.logo)}"
+     alt="logo"
+     style="
+     max-width:120px;
+     margin-top:10px;
+     border-radius:10px;
+     border:1px solid #ddd;
+     padding:4px;
+      background:white;
+           "
+      />
+     </p>
+    ` : ""}
+    <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
                       <a href="/admin/setups/${setup.id}/configure" class="btn btn-primary">
                         Configure
                       </a>
