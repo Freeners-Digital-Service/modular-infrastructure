@@ -27,121 +27,128 @@ function adminMain(pool, renderPage) {
       `);
 
       const setupCards = setups.rows.length
-        ? setups.rows.map((setup) => {
-            const status = setup.status || "under_configuration";
-            const statusColor =
-              status === "active"
-                ? "#16a34a"
-                : status === "under_configuration"
-                ? "#f97316"
-                : "#6b7280";
+        ? setups.rows
+            .map((setup) => {
+              const status = setup.status || "under_configuration";
+              const statusColor =
+                status === "active"
+                  ? "#16a34a"
+                  : status === "under_configuration"
+                  ? "#f97316"
+                  : "#6b7280";
 
-            const viewLink = setup.domain
-              ? `https://${setup.domain}`
-              : setup.website_url || setup.system_url || "#";
+              const viewLink = setup.domain
+                ? `https://${setup.domain}`
+                : setup.website_url || setup.system_url || "#";
 
-            return `
-              <div style="
-                padding:20px;
-                background:#f9f9f9;
-                border:1px solid #ddd;
-                border-radius:12px;
-                margin-bottom:16px;
-              ">
-                <h3 style="margin:0 0 10px 0;">
-                  ${escapeHtml(setup.item_type || "setup").toUpperCase()}
-                </h3>
-
-                <p><strong>System ID:</strong> ${escapeHtml(setup.system_id || "-")}</p>
-                <p><strong>Website ID:</strong> ${escapeHtml(setup.website_id || "-")}</p>
-                <p><strong>System Name:</strong> ${escapeHtml(setup.system_name || "-")}</p>
-                <p><strong>Website Name:</strong> ${escapeHtml(setup.website_name || "-")}</p>
-                <p><strong>Business Name:</strong> ${escapeHtml(setup.business_name || "-")}</p>
-                <p><strong>Email:</strong> ${escapeHtml(setup.business_email || "-")}</p>
-                <p><strong>Phone:</strong> ${escapeHtml(setup.phone || "-")}</p>
-                <p><strong>Category:</strong> ${escapeHtml(setup.category || "-")}</p>
-                <p><strong>Label:</strong> ${escapeHtml(setup.label || "-")}</p>
-                <p><strong>Brand Color:</strong> ${escapeHtml(setup.brand_color || "-")}</p>
-                <p><strong>Domain:</strong> ${escapeHtml(setup.domain || "-")}</p>
-
-                <p>
-                  <strong>Status:</strong>
-                  <span style="
-                    display:inline-block;
-                    padding:4px 10px;
-                    border-radius:999px;
-                    color:white;
-                    background:${statusColor};
-                    margin-left:6px;
-                    font-size:13px;
+              return `
+                <details style="
+                  background:#ffffff;
+                  border:1px solid #e5e7eb;
+                  border-radius:18px;
+                  box-shadow:0 10px 30px rgba(0,0,0,0.05);
+                  overflow:hidden;
+                ">
+                  <summary style="
+                    list-style:none;
+                    cursor:pointer;
+                    padding:18px 20px;
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    gap:16px;
+                    font-weight:700;
+                    color:#111827;
                   ">
-                    ${escapeHtml(status)}
-                  </span>
-                </p>
+                    <span>${escapeHtml((setup.item_type || "setup").toUpperCase())}</span>
+                    <span style="
+                      display:inline-block;
+                      padding:6px 12px;
+                      border-radius:999px;
+                      color:#fff;
+                      background:${statusColor};
+                      font-size:12px;
+                      font-weight:700;
+                      white-space:nowrap;
+                    ">
+                      ${escapeHtml(status)}
+                    </span>
+                  </summary>
 
-                ${setup.logo ? `<p><strong>Logo:</strong><br><img src="${escapeHtml(setup.logo)}" alt="logo" style="max-width:120px; margin-top:8px;"></p>` : ""}
-
-                <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
-                  <a href="/admin/setups/${setup.id}/configure" style="
-                    padding:10px 14px;
-                    background:#111827;
-                    color:white;
-                    text-decoration:none;
-                    border-radius:8px;
+                  <div style="
+                    padding:20px;
+                    border-top:1px solid #eef2f7;
+                    background:#fafafa;
                   ">
-                    Configure
-                  </a>
+                    <p><strong>System ID:</strong> ${escapeHtml(setup.system_id || "-")}</p>
+                    <p><strong>Website ID:</strong> ${escapeHtml(setup.website_id || "-")}</p>
+                    <p><strong>System Name:</strong> ${escapeHtml(setup.system_name || "-")}</p>
+                    <p><strong>Website Name:</strong> ${escapeHtml(setup.website_name || "-")}</p>
+                    <p><strong>Business Name:</strong> ${escapeHtml(setup.business_name || "-")}</p>
+                    <p><strong>Business Email:</strong> ${escapeHtml(setup.business_email || "-")}</p>
+                    <p><strong>Phone:</strong> ${escapeHtml(setup.phone || "-")}</p>
+                    <p><strong>Category:</strong> ${escapeHtml(setup.category || "-")}</p>
+                    <p><strong>Label:</strong> ${escapeHtml(setup.label || "-")}</p>
+                    <p><strong>Brand Color:</strong> ${escapeHtml(setup.brand_color || "-")}</p>
+                    <p><strong>Domain:</strong> ${escapeHtml(setup.domain || "-")}</p>
 
-                  <a href="${escapeHtml(viewLink)}" target="_blank" style="
-                    padding:10px 14px;
-                    background:#2563eb;
-                    color:white;
-                    text-decoration:none;
-                    border-radius:8px;
-                  ">
-                    View
-                  </a>
-                </div>
-              </div>
-            `;
-          }).join("")
-        : `<p>No setup requests yet.</p>`;
+                    ${setup.logo ? `<p><strong>Logo:</strong><br><img src="${escapeHtml(setup.logo)}" alt="logo" style="max-width:120px; margin-top:10px; border-radius:10px;"></p>` : ""}
+
+                    <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
+                      <a href="/admin/setups/${setup.id}/configure" class="btn btn-primary">
+                        Configure
+                      </a>
+
+                      <a href="${escapeHtml(viewLink)}" target="_blank" class="btn btn-secondary">
+                        View
+                      </a>
+                    </div>
+                  </div>
+                </details>
+              `;
+            })
+            .join("")
+        : `<p style="background:#fff; padding:18px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.05);">No setup requests yet.</p>`;
 
       const content = `
-        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-bottom:30px;">
-          
-          <div style="padding:20px; background:#f4f4f4;">
+        <div class="stats-grid">
+          <div class="card">
             <h2>Clients</h2>
             <p>${clients.rows[0].count}</p>
           </div>
 
-          <div style="padding:20px; background:#f4f4f4;">
+          <div class="card">
             <h2>Systems</h2>
             <p>${systems.rows[0].count}</p>
           </div>
 
-          <div style="padding:20px; background:#f4f4f4;">
+          <div class="card">
             <h2>Modules</h2>
             <p>${modules.rows[0].count}</p>
           </div>
 
-          <div style="padding:20px; background:#f4f4f4;">
+          <div class="card">
             <h2>Agents</h2>
             <p>${agents.rows[0].count}</p>
           </div>
-
         </div>
 
-        <div style="margin-top:30px;">
-          <h2 style="margin-bottom:16px;">Setup Requests</h2>
-          ${setupCards}
+        <div style="margin-top:10px;">
+          <h2 style="margin:0 0 16px 0; color:#111827;">Setup Requests</h2>
+          <div style="
+            display:grid;
+            grid-template-columns:repeat(3, minmax(0, 1fr));
+            gap:16px;
+          ">
+            ${setupCards}
+          </div>
         </div>
       `;
 
       res.send(renderPage("Dashboard", content));
     } catch (err) {
       console.error(err);
-      res.send(err.message);
+      res.status(500).send(err.message);
     }
   });
 
