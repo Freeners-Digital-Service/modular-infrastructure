@@ -353,8 +353,8 @@ router.get("/form/website", async (req, res) => {
               brand_color = $10,
               domain = $11,
 
-              status = 'submitted',
-              step = 999
+              status = 'under_configuration',
+              step = 1
 
              WHERE system_id = $12
              OR website_id = $13`,
@@ -444,8 +444,8 @@ router.get("/form/website", async (req, res) => {
               brand_color,
               domain,
 
-              "submitted",
-              999
+              "under_configuration",
+              1
 
             ]
           );
