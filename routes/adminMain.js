@@ -15,10 +15,32 @@ function adminMain(pool, renderPage) {
 
   router.get("/", async (req, res) => {
     try {
-      const clients = await pool.query("SELECT COUNT(*) FROM clients");
-      const systems = await pool.query("SELECT COUNT(*) FROM systems");
-      const modules = await pool.query("SELECT COUNT(*) FROM modules");
-      const agents = await pool.query("SELECT COUNT(*) FROM agents");
+      const clients = await pool.query(`
+        SELECT COUNT(DISTINCT business_email)
+        FROM setups
+        `);
+
+       const websites = await pool.query(`
+       SELECT COUNT(*)
+       FROM setups
+       WHERE item_type = 'website'
+       `);
+
+       const systems = await pool.query(`
+       SELECT COUNT(*)
+       FROM setups
+       WHERE item_type = 'system'
+       `);
+
+       const modules = await pool.query(`
+       SELECT COUNT(*)
+       FROM modules
+       `);
+
+       const agents = await pool.query(`
+       SELECT COUNT(*)
+       FROM agents
+       `);
 
       const setups = await pool.query(`
         SELECT *

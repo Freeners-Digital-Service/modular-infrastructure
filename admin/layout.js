@@ -246,6 +246,10 @@ function renderPage(title, content) {
         Systems
       </a>
 
+      <a href="/admin/websites">
+      Websites
+      </a>
+
       <a href="/admin/modules">
         Modules
       </a>
