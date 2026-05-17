@@ -66,15 +66,6 @@ function adminMain(pool, renderPage) {
               return `
                 <details
                   class="setup-card"
-                  ontoggle="
-                  if(this.open){
-                  document.querySelectorAll('.setup-card').forEach(card => {
-                  if(card !== this){
-                  card.removeAttribute('open');
-                  }
-                  });
-                  }
-                  "
                   style="
                   background:#ffffff;
                   border:1px solid #e5e7eb;
@@ -200,7 +191,41 @@ function adminMain(pool, renderPage) {
         </div>
       `;
 
-      res.send(renderPage("Dashboard", content));
+      const dashboardScript = `
+      <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const cards =
+        document.querySelectorAll(".setup-card");
+
+        cards.forEach(function(card) {
+
+          card.addEventListener("toggle", function () {
+
+            if (card.open) {
+
+              cards.forEach(function(otherCard) {
+
+                if (otherCard !== card) {
+                  otherCard.removeAttribute("open");
+                }
+
+              });
+
+            }
+
+          });
+
+        });
+      });
+      </script>
+      `;
+
+      res.send(
+        renderPage(
+          "Dashboard",
+          content + dashboardScript
+        )
+      );
     } catch (err) {
       console.error(err);
       res.status(500).send(err.message);
