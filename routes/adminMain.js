@@ -17,7 +17,7 @@ function adminMain(pool, renderPage) {
     try {
       const clients = await pool.query(`
         SELECT COUNT(DISTINCT business_email)
-        FROM setups
+        FROM clients
         `);
 
        const websites = await pool.query(`
@@ -33,12 +33,12 @@ function adminMain(pool, renderPage) {
        `);
 
        const modules = await pool.query(`
-       SELECT COUNT(*)
+       SELECT COUNT(id)
        FROM modules
        `);
 
        const agents = await pool.query(`
-       SELECT COUNT(*)
+       SELECT COUNT(id)
        FROM agents
        `);
 
@@ -64,13 +64,21 @@ function adminMain(pool, renderPage) {
                 : setup.website_url || setup.system_url || "#";
 
               return `
-                <details style="
-                  background:#ffffff;
-                  border:1px solid #e5e7eb;
-                  border-radius:18px;
-                  box-shadow:0 10px 30px rgba(0,0,0,0.05);
-                  overflow:hidden;
-                ">
+                <details
+               class="setup-card"
+               onclick="
+               document.querySelectorAll('.setup-card')
+               .forEach(el => {
+               if(el !== this){
+               el.removeAttribute('open');
+                     }});"
+               style="
+              background:#ffffff;
+              border:1px solid #e5e7eb;
+              border-radius:18px;
+              box-shadow:0 10px 30px rgba(0,0,0,0.05);
+              overflow:hidden;">
+              
                   <summary style="
                     list-style:none;
                     cursor:pointer;
@@ -157,6 +165,11 @@ function adminMain(pool, renderPage) {
           <div class="card">
             <h2>Systems</h2>
             <p>${systems.rows[0].count}</p>
+          </div>
+
+          <div class="card">
+            <h2>Websites</h2>
+            <p>${websites.rows[0].count}</p>
           </div>
 
           <div class="card">

@@ -14,7 +14,6 @@ function adminSystems(pool, renderPage) {
 
   router.get("/systems", async (req, res) => {
     try {
-
       const systems = await pool.query(`
         SELECT *
         FROM setups
@@ -23,201 +22,165 @@ function adminSystems(pool, renderPage) {
       `);
 
       const systemCards = systems.rows.length
-        ? systems.rows.map((system) => {
+        ? systems.rows
+            .map((system) => {
+              const status = system.status || "under_configuration";
+              const statusColor = status === "active" ? "#16a34a" : "#f97316";
 
-          const status =
-            system.status ||
-            "under_configuration";
+              const viewLink = system.domain
+                ? `https://${system.domain}`
+                : "#";
 
-          const statusColor =
-            status === "active"
-            ? "#059669"
-            : "#dc2626";
-
-          return `
-            <div style="
-              background:linear-gradient(
-              135deg,
-              #0f172a,
-              #1e293b
-              );
-              color:white;
-              border-radius:22px;
-              overflow:hidden;
-              box-shadow:
-              0 15px 35px rgba(0,0,0,0.15);
-              transition:.3s ease;
-            ">
-
-              <div style="
-                padding:20px;
-                border-bottom:
-                1px solid rgba(255,255,255,0.08);
-              ">
-
-                <div style="
-                  display:flex;
-                  justify-content:space-between;
-                  align-items:center;
-                  gap:12px;
-                ">
-
-                  <div>
-                    <h2 style="
-                      margin:0;
-                      font-size:20px;
-                    ">
-                      ${escapeHtml(
-                        system.system_name ||
-                        "Unnamed System"
-                      )}
-                    </h2>
-
-                    <p style="
-                      margin-top:6px;
-                      opacity:.8;
-                    ">
-                      ${escapeHtml(
-                        system.category ||
-                        "No Category"
-                      )}
-                    </p>
-                  </div>
-
-                  <span style="
-                    background:${statusColor};
-                    padding:8px 14px;
-                    border-radius:999px;
-                    font-size:12px;
-                    font-weight:bold;
-                  ">
-                    ${escapeHtml(status)}
-                  </span>
-
-                </div>
-
-              </div>
-
-              <div style="
-                padding:20px;
-              ">
-
-                <div style="
-                  display:grid;
-                  grid-template-columns:
-                  repeat(2,1fr);
-                  gap:12px;
-                  margin-bottom:20px;
-                ">
-
-                  <div>
-                    <small>System ID</small>
-                    <p>${escapeHtml(system.system_id || "-")}</p>
-                  </div>
-
-                  <div>
-                    <small>Label</small>
-                    <p>${escapeHtml(system.label || "-")}</p>
-                  </div>
-
-                  <div>
-                    <small>Business</small>
-                    <p>${escapeHtml(system.business_name || "-")}</p>
-                  </div>
-
-                  <div>
-                    <small>Email</small>
-                    <p>${escapeHtml(system.business_email || "-")}</p>
-                  </div>
-
-                </div>
-
-                ${system.logo ? `
-                <div style="
-                  margin-bottom:20px;
-                ">
-                  <img
-                  src="https://modular-infrastructure.onrender.com${escapeHtml(system.logo)}"
-                  style="
-                  width:90px;
-                  height:90px;
-                  object-fit:cover;
-                  border-radius:18px;
-                  border:2px solid rgba(255,255,255,0.1);
+              return `
+                <details
+                  onclick="
+                    document.querySelectorAll('details').forEach(el => {
+                      if (el !== this) el.removeAttribute('open');
+                    });
                   "
-                  />
-                </div>
-                ` : ""}
-
-                <div style="
-                  display:flex;
-                  gap:12px;
-                  flex-wrap:wrap;
-                ">
-
-                  <a
-                  href="/admin/setups/${system.id}/configure"
                   style="
-                  background:#10b981;
-                  color:white;
-                  text-decoration:none;
-                  padding:12px 18px;
-                  border-radius:12px;
-                  font-weight:bold;
+                    background: linear-gradient(135deg, #0f172a, #1e293b);
+                    color: white;
+                    border-radius: 20px;
+                    overflow: hidden;
+                    box-shadow: 0 12px 30px rgba(0,0,0,0.14);
+                  "
+                >
+                  <summary style="
+                    list-style: none;
+                    cursor: pointer;
+                    padding: 18px 20px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 12px;
+                    font-weight: 700;
                   ">
-                    Configure
-                  </a>
+                    <span>
+                      ${escapeHtml(system.system_name || "Unnamed System")}
+                    </span>
 
-                  <button style="
-                  background:#334155;
-                  color:white;
-                  border:none;
-                  padding:12px 18px;
-                  border-radius:12px;
-                  cursor:pointer;
+                    <span style="
+                      background: ${statusColor};
+                      color: white;
+                      padding: 6px 12px;
+                      border-radius: 999px;
+                      font-size: 12px;
+                      font-weight: 700;
+                      white-space: nowrap;
+                    ">
+                      ${escapeHtml(status)}
+                    </span>
+                  </summary>
+
+                  <div style="
+                    padding: 18px 20px 20px;
+                    border-top: 1px solid rgba(255,255,255,0.08);
                   ">
-                    View Details
-                  </button>
+                    <p style="margin: 0 0 8px 0;">
+                      <strong>System ID:</strong> ${escapeHtml(system.system_id || "-")}
+                    </p>
 
-                </div>
+                    <p style="margin: 0 0 8px 0;">
+                      <strong>Category:</strong> ${escapeHtml(system.category || "-")}
+                    </p>
 
-              </div>
+                    <p style="margin: 0 0 8px 0;">
+                      <strong>Label:</strong> ${escapeHtml(system.label || "-")}
+                    </p>
 
-            </div>
-          `;
-        }).join("")
+                    <p style="margin: 0 0 8px 0;">
+                      <strong>Business:</strong> ${escapeHtml(system.business_name || "-")}
+                    </p>
 
+                    <p style="margin: 0 0 8px 0;">
+                      <strong>Email:</strong> ${escapeHtml(system.business_email || "-")}
+                    </p>
+
+                    <p style="margin: 0 0 8px 0;">
+                      <strong>Phone:</strong> ${escapeHtml(system.phone || "-")}
+                    </p>
+
+                    ${
+                      system.logo
+                        ? `
+                      <p style="margin: 14px 0 0 0;">
+                        <strong>Logo:</strong><br>
+                        <img
+                          src="https://modular-infrastructure.onrender.com${escapeHtml(system.logo)}"
+                          alt="logo"
+                          style="
+                            max-width: 100px;
+                            margin-top: 10px;
+                            border-radius: 14px;
+                            background: white;
+                            padding: 4px;
+                          "
+                        />
+                      </p>
+                    `
+                        : ""
+                    }
+
+                    <div style="
+                      display: flex;
+                      gap: 10px;
+                      margin-top: 18px;
+                      flex-wrap: wrap;
+                    ">
+                      <a
+                        href="/admin/setups/${system.id}/configure"
+                        style="
+                          background: #10b981;
+                          color: white;
+                          text-decoration: none;
+                          padding: 11px 16px;
+                          border-radius: 12px;
+                          font-weight: 700;
+                        "
+                      >
+                        Configure
+                      </a>
+
+                      <a
+                        href="${escapeHtml(viewLink)}"
+                        target="_blank"
+                        style="
+                          background: #334155;
+                          color: white;
+                          text-decoration: none;
+                          padding: 11px 16px;
+                          border-radius: 12px;
+                          font-weight: 700;
+                        "
+                      >
+                        View
+                      </a>
+                    </div>
+                  </div>
+                </details>
+              `;
+            })
+            .join("")
         : `
-        <div class="card">
-          <h3>No systems found.</h3>
-        </div>
+          <div class="card">
+            <h3>No systems found.</h3>
+          </div>
         `;
 
       const content = `
-        <h2 style="
-          margin-bottom:20px;
-        ">
-          Systems Management
-        </h2>
+        <h2 style="margin-bottom: 20px;">Systems Management</h2>
 
         <div style="
-          display:grid;
-          grid-template-columns:
-          repeat(auto-fit,
-          minmax(340px,1fr));
-          gap:22px;
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 18px;
         ">
           ${systemCards}
         </div>
       `;
 
-      res.send(
-        renderPage(
-          "Systems",
-          content
-        )
-      );
-
+      res.send(renderPage("Systems", content));
     } catch (err) {
       console.error(err);
       res.status(500).send(err.message);
