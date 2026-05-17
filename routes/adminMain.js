@@ -17,7 +17,7 @@ function adminMain(pool, renderPage) {
     try {
       const clients = await pool.query(`
         SELECT COUNT(DISTINCT business_email)
-        FROM clients
+        FROM setups
         `);
 
        const websites = await pool.query(`
@@ -78,7 +78,7 @@ function adminMain(pool, renderPage) {
               border-radius:18px;
               box-shadow:0 10px 30px rgba(0,0,0,0.05);
               overflow:hidden;">
-              
+
                   <summary style="
                     list-style:none;
                     cursor:pointer;
