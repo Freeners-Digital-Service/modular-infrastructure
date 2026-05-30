@@ -250,7 +250,6 @@ async function loadTool(toolName) {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS agents (
         id SERIAL PRIMARY KEY,
-        module_id INTEGER,
 
         agent_id TEXT UNIQUE,
         name TEXT,
