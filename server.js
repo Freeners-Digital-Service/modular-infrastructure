@@ -626,9 +626,23 @@ async function getMarketplaceProducts() {
         module_id INTEGER,
         agent_id INTEGER,
 
-        status TEXT DEFAULT 'active',   -- active / inactive
+        agent_name TEXT,
 
-        activated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        target_type TEXT,
+        target_reference TEXT,
+
+        setup_submitted BOOLEAN DEFAULT FALSE,
+        setup_submitted_at TIMESTAMP,
+
+        configuration_status TEXT DEFAULT 'pending',
+
+        status TEXT DEFAULT 'active',
+
+        monthly_fee DECIMAL(10,2) DEFAULT 0,
+        locked_price DECIMAL(10,2) DEFAULT 0,
+
+        activated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        approved_at TIMESTAMP
       );
     `);
 
@@ -637,6 +651,7 @@ async function getMarketplaceProducts() {
     console.error("Client agents table error:", err);
   }
 })();
+
 
 
 
