@@ -169,30 +169,7 @@ async function getMemory(user) {
   }
 })();
 
-/* =========================
-   AGENTS TABLE
-========================= */
 
-(async () => {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS agents (
-        id SERIAL PRIMARY KEY,
-        name TEXT UNIQUE,
-        description TEXT,
-        system_prompt TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    console.log("Agents table ready");
-
-  } catch (err) {
-
-    console.error("Agents table error:", err);
-
-  }
-})();
 
 /* =========================
    TOOLS TABLE
@@ -254,6 +231,7 @@ async function loadTool(toolName) {
         agent_id TEXT UNIQUE,
         name TEXT,
         description TEXT,
+        system_prompt TEXT,
         category TEXT,
 
         setup_fee DECIMAL(10,2) DEFAULT 0,
