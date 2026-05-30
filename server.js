@@ -251,9 +251,24 @@ async function loadTool(toolName) {
       CREATE TABLE IF NOT EXISTS agents (
         id SERIAL PRIMARY KEY,
         module_id INTEGER,
+
+        agent_id TEXT UNIQUE,
         name TEXT,
+        description TEXT,
+        category TEXT,
+
+        setup_fee DECIMAL(10,2) DEFAULT 0,
+        monthly_fee DECIMAL(10,2) DEFAULT 0,
+        locked_price DECIMAL(10,2) DEFAULT 0,
+
+        base_capability TEXT,
+
+        supported_targets TEXT[],
+
         status TEXT DEFAULT 'stopped',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -262,6 +277,7 @@ async function loadTool(toolName) {
     console.error("Agents table error:", err);
   }
 })();
+
 
 
 /* =========================
