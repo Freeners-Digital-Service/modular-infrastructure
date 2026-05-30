@@ -339,11 +339,28 @@ async function finishAgentSession(sessionId) {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS agent_tasks (
         id SERIAL PRIMARY KEY,
-        session_id INTEGER,
-        task TEXT,
-        status TEXT,
+
+        agent_id INTEGER,
+        agent_name TEXT,
+
+        capability_id TEXT,
+        capability_name TEXT,
+
+        task_name TEXT,
+        task_description TEXT,
+
+        billing_impact DECIMAL(10,2) DEFAULT 0,
+
+        availability TEXT,
+
+        status TEXT DEFAULT 'active',
+
+        unlock_level INTEGER DEFAULT 1,
+
         result TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -355,6 +372,7 @@ async function finishAgentSession(sessionId) {
 
   }
 })();
+
 
 /* =========================
    AGENT TASK ENGINE
