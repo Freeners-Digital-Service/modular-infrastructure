@@ -353,6 +353,49 @@ async function finishAgentSession(sessionId) {
 
 
 /* =========================
+   AGENT TASK LOGS TABLE
+========================= */
+
+(async () => {
+  try {
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS agent_task_logs (
+        id SERIAL PRIMARY KEY,
+
+        client_id INTEGER,
+
+        agent_id INTEGER,
+        agent_name TEXT,
+
+        task_id INTEGER,
+        task_name TEXT,
+
+        event_type TEXT,
+
+        message TEXT,
+
+        result TEXT,
+
+        status TEXT DEFAULT 'completed',
+
+        source TEXT,
+
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Agent task logs table ready");
+
+  } catch (err) {
+
+    console.error("Agent task logs table error:", err);
+
+  }
+})();
+
+
+/* =========================
    AGENT TASK ENGINE
 ========================= */
 
