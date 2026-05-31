@@ -111,7 +111,7 @@ app.use("/api/client-products", clientProducts(pool));
 app.use("/admin", adminSystemConnections(pool, renderPage));
 app.use("/api", billingRoutes(pool));
 app.use("/api/setup", setupRoutes(pool, upload));
-app.use("/api/agentsetup",agentSetupRoutes(pool));
+app.use("/api/agentSetup",agentSetupRoutes(pool));
 
 
 
@@ -265,7 +265,6 @@ async function loadTool(toolName) {
 /* =========================
    AGENT SESSIONS TABLE
 ========================= */
-
 (async () => {
   try {
 
