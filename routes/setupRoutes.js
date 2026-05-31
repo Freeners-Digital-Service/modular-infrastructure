@@ -4,6 +4,8 @@ const systemLaunchForm =
 require("../db/systemLaunchForm");
 const websitesLaunchForm =
 require("../db/websitesLaunchForm");
+const agentsLaunchForm =
+require("../db/agentsLaunchForm");
 
 function setupRoutes(pool, upload) {
 
@@ -277,6 +279,32 @@ router.get("/form/website", async (req, res) => {
 
     res.status(500).json({
       error: "Failed to load website launch form"
+    });
+
+  }
+
+});
+
+
+/* =========================
+   GET AGENT LAUNCH FORM
+========================= */
+
+router.get("/form/agent", async (req, res) => {
+
+  try {
+
+    res.json({
+      success: true,
+      form: agentsLaunchForm
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to load agent launch form"
     });
 
   }
