@@ -671,6 +671,24 @@ async function getMarketplaceProducts() {
 
         target_type TEXT,
         target_reference TEXT,
+        
+        website_name TEXT,
+        website_url TEXT,
+        website_platform TEXT,
+
+        system_name TEXT,
+        system_url TEXT,
+        system_type TEXT,
+
+        platform_name TEXT,
+        account_name TEXT,
+        profile_url TEXT,
+
+        agent_behavior TEXT,
+        additional_information TEXT,
+
+        contact_method TEXT,
+
 
         setup_submitted BOOLEAN DEFAULT FALSE,
         setup_submitted_at TIMESTAMP,
