@@ -52,6 +52,7 @@ const seedSystemsCatalog = require("./db/systemsCatalogSeed");
 const seedWebsitesCatalog =require("./db/websitesCatalogSeed");
 const seedAgentsCatalog = require("./db/agentsCatalogSeed");
 const setupRoutes = require("./routes/setupRoutes");
+const agentSetupRoutes = require("./routes/agentSetupRoutes");
 
 
 
@@ -110,6 +111,7 @@ app.use("/api/client-products", clientProducts(pool));
 app.use("/admin", adminSystemConnections(pool, renderPage));
 app.use("/api", billingRoutes(pool));
 app.use("/api/setup", setupRoutes(pool, upload));
+app.use("/api/agentsetup",agentSetupRoutes(pool));
 
 
 
@@ -665,13 +667,13 @@ async function getMarketplaceProducts() {
         client_id INTEGER,
         system_id INTEGER,
         module_id INTEGER,
-        agent_id INTEGER,
+        agent_id TEXT,
 
         agent_name TEXT,
 
         target_type TEXT,
         target_reference TEXT,
-        
+
         website_name TEXT,
         website_url TEXT,
         website_platform TEXT,
