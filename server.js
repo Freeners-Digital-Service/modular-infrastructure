@@ -44,6 +44,7 @@ const adminClientModules = require("./routes/adminClientModules");
 const systemWebsiteConnections = require("./routes/systemWebsiteConnections");
 const websitesCatalog = require("./routes/websitesCatalog");
 const clientProducts = require("./routes/clientProducts");
+const agentsCatalog = require("./routes/agentsCatalog");
 const adminSystemConnections = require("./routes/adminSystemConnections");
 const billingRoutes = require("./routes/billing");
 const systemsCatalog = require("./routes/systemsCatalog");
@@ -102,10 +103,11 @@ app.use("/admin",  adminClientAgents(pool, renderPage));
 app.use("/admin",  adminClientModules(pool, renderPage));
 app.use("/api/system-website", systemWebsiteConnections(pool));
 app.use("/api/websites", websitesCatalog(pool));
+app.use("/api", systemsCatalog(pool));
+app.use("/api", agentsCatalog(pool));
 app.use("/api/client-products", clientProducts(pool));
 app.use("/admin", adminSystemConnections(pool, renderPage));
 app.use("/api", billingRoutes(pool));
-app.use("/api", systemsCatalog(pool));
 app.use("/api/setup", setupRoutes(pool, upload));
 
 
