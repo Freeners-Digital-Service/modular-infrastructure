@@ -1393,6 +1393,47 @@ CONNECT SYSTEMS TO CLIENTS Tables
   }
 })();
 
+
+/* =========================
+   AGENTS CATALOG TABLE
+========================= */
+
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS agents_catalog (
+        id TEXT PRIMARY KEY,
+
+        name TEXT,
+        full_name TEXT,
+
+        type TEXT,
+        category TEXT,
+        label TEXT,
+
+        setup_fee DECIMAL(10,2) DEFAULT 0,
+        monthly_fee DECIMAL(10,2) DEFAULT 0,
+
+        capability_id TEXT,
+        base_capability TEXT,
+
+        supported_targets TEXT,
+
+        status TEXT DEFAULT 'active',
+
+        description TEXT,
+
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Agents catalog table ready");
+  } catch (err) {
+    console.error("Agents catalog table error:", err);
+  }
+})();
+
 /* =========================
    CLIENT PRODUCTS (WEBSITES)
 ========================= */
