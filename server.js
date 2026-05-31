@@ -322,8 +322,7 @@ async function finishAgentSession(sessionId) {
       CREATE TABLE IF NOT EXISTS agent_tasks (
         id SERIAL PRIMARY KEY,
 
-        agent_id INTEGER,
-        agent_name TEXT,
+        task_id TEXT UNIQUE,
 
         capability_id TEXT,
         capability_name TEXT,
