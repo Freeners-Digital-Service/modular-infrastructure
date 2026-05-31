@@ -50,6 +50,7 @@ const billingRoutes = require("./routes/billing");
 const systemsCatalog = require("./routes/systemsCatalog");
 const seedSystemsCatalog = require("./db/systemsCatalogSeed");
 const seedWebsitesCatalog =require("./db/websitesCatalogSeed");
+const seedAgentsCatalog = require("./db/agentsCatalogSeed");
 const setupRoutes = require("./routes/setupRoutes");
 
 
@@ -1876,4 +1877,5 @@ app.listen(PORT, "0.0.0.0", () => {
 (async () => {
   await seedSystemsCatalog(pool);
   await seedWebsitesCatalog(pool);
+  await seedAgentsCatalog(pool);
 })();
