@@ -356,6 +356,48 @@ async function finishAgentSession(sessionId) {
 
 
 /* =========================
+   AGENT TASK ASSIGNMENTS TABLE
+========================= */
+
+(async () => {
+  try {
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS agent_task_assignments (
+        id SERIAL PRIMARY KEY,
+
+        agent_id TEXT,
+        capability_id TEXT,
+        task_id TEXT,
+
+        is_base_task BOOLEAN DEFAULT FALSE,
+
+        unlock_level INTEGER DEFAULT 1,
+
+        status TEXT DEFAULT 'active',
+
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log(
+      "Agent task assignments table ready"
+    );
+
+  } catch (err) {
+
+    console.error(
+      "Agent task assignments table error:",
+      err
+    );
+
+  }
+})();
+
+
+
+/* =========================
    AGENT TASK LOGS TABLE
 ========================= */
 
