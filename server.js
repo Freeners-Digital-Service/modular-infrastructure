@@ -31,6 +31,7 @@ const adminSystemModules = require("./routes/adminSystemModules");
 const adminModuleAgents = require("./routes/adminModuleAgents");
 const adminAgentSessions = require("./routes/adminAgentSessions");
 const adminAgentTasks = require("./routes/adminAgentTasks");
+const adminAgentTaskCreate = require("./routes/adminAgentTaskCreate");
 const adminUsers = require("./routes/adminUsers");
 const adminActivityLogs = require("./routes/adminActivityLogs");
 const adminSystemLogs = require("./routes/adminSystemLogs");
@@ -54,6 +55,7 @@ const seedWebsitesCatalog =require("./db/websitesCatalogSeed");
 const seedAgentsCatalog = require("./db/agentsCatalogSeed");
 const setupRoutes = require("./routes/setupRoutes");
 const agentSetupRoutes = require("./routes/agentSetupRoutes");
+
 
 
 
@@ -105,6 +107,7 @@ app.use("/admin",  adminPricing(pool, renderPage));
 app.use("/admin",  adminClientAgents(pool, renderPage));
 app.use("/admin",  adminClientModules(pool, renderPage));
 app.use("/admin",  adminAgentCapabilities(pool, renderPage));
+app.use("/admin",  adminAgentTaskCreate(pool, renderPage));
 app.use("/api/system-website", systemWebsiteConnections(pool));
 app.use("/api/websites", websitesCatalog(pool));
 app.use("/api", systemsCatalog(pool));
