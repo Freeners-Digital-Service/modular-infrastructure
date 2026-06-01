@@ -368,6 +368,7 @@ async function finishAgentSession(sessionId) {
 
         agent_id TEXT,
         capability_id TEXT,
+        task_name TEXT,
         task_id INTEGER,
 
         is_base_task BOOLEAN DEFAULT FALSE,
