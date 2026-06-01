@@ -400,6 +400,48 @@ async function finishAgentSession(sessionId) {
 })();
 
 
+/* =========================
+   AGENT CAPABILITIES TABLE
+========================= */
+
+(async () => {
+  try {
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS agent_capabilities (
+        id SERIAL PRIMARY KEY,
+
+        capability_id TEXT UNIQUE,
+
+        agent_id TEXT,
+        agent_name TEXT,
+
+        capability_name TEXT,
+        capability_description TEXT,
+
+        billing_impact DECIMAL(10,2) DEFAULT 0,
+
+        availability TEXT,
+
+        status TEXT DEFAULT 'active',
+
+        unlock_level INTEGER DEFAULT 1,
+
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Agent capabilities table ready");
+
+  } catch (err) {
+
+    console.error("Agent capabilities table error:", err);
+
+  }
+})();
+
+
 
 /* =========================
    AGENT TASK LOGS TABLE
