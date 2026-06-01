@@ -184,6 +184,64 @@ router.get("/client-agents/activate/:id", async (req, res) => {
 
     const { id } = req.params;
 
+    const clientAgentResult = await pool.query(
+  `SELECT *
+   FROM client_agents
+   WHERE id = $1`,
+  [id]
+);
+
+if (clientAgentResult.rows.length === 0) {
+  return res.send("Client agent not found");
+}
+
+const clientAgent = clientAgentResult.rows[0];
+
+const tasksResult = await pool.query(
+  `SELECT *
+   FROM agent_tasks
+   WHERE agent_id = $1`,
+  [clientAgent.agent_id]
+);
+
+
+for (const task of tasksResult.rows) {
+
+  await pool.query(
+    `INSERT INTO agent_task_assignments (
+      client_id,
+      agent_id,
+      agent_name,
+      capability_id,
+      task_id,
+      task_name,
+      is_base_task,
+      unlock_level,
+      status
+    )
+    VALUES (
+      $1,$2,$3,$4,$5,$6,$7,$8,$9
+    )`,
+    [
+      clientAgent.client_id,
+      clientAgent.agent_id,
+      clientAgent.agent_name,
+
+      task.capability_id,
+
+      task.task_id,
+      task.task_name,
+
+      true,
+
+      task.unlock_level || 1,
+
+      "active"
+    ]
+  );
+
+}
+
     await pool.query(
       `UPDATE client_agents
        SET
