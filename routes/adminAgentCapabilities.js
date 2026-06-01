@@ -91,7 +91,7 @@ router.get("/agent-capabilities/create", async (req, res) => {
     `).join("");
 
     const content = `
-      <form method="POST" action="/agent-capabilities/create">
+      <form method="POST" action="/admin/agent-capabilities/create">
 
         <label>Agent</label>
         <select name="agent_id" required>
