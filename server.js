@@ -369,6 +369,7 @@ async function finishAgentSession(sessionId) {
         id SERIAL PRIMARY KEY,
         client_id INTEGER,
         agent_id TEXT,
+        agent_name TEXT,
         capability_id TEXT,
         task_name TEXT,
         task_id INTEGER,
