@@ -7,34 +7,41 @@ function adminClientAgents(pool, renderPage) {
      Admin Client Agents
   ========================= */
 
-  router.get("/client-agents", async (req, res) => {
-    try {
-      const result = await pool.query(`
-        SELECT 
-          ca.id,
-          ca.client_id,
-          ca.system_id,
-          ca.target_type,
-          ca.agent_id,
-          ca.status,
-          ca.activated_at,
+router.get("/client-agents", async (req, res) => {
+  try {
 
-          c.name AS client,
-          s.name AS system,
-          ca.target_type AS target,
-          a.name AS agent
+    const result = await pool.query(`
+      SELECT 
+        ca.id,
+        ca.client_id,
+        ca.system_id,
+        ca.target_type,
+        ca.agent_id,
+        ca.status,
+        ca.activated_at,
 
-        FROM client_agents ca
+        c.name AS client,
+        s.name AS system,
+        ca.target_type AS target,
+        a.name AS agent
 
-        LEFT JOIN clients c ON ca.client_id = c.id
-        LEFT JOIN systems s ON ca.system_id = s.id
-        LEFT JOIN agents a ON ca.agent_id = a.agent_id
-   
+      FROM client_agents ca
 
-        ORDER BY ca.activated_at DESC
-      `);
+      LEFT JOIN clients c ON ca.client_id = c.id
+      LEFT JOIN systems s ON ca.system_id = s.id
+      LEFT JOIN agents a ON ca.agent_id = a.agent_id
 
-      let rows = result.rows.map(r => `
+      ORDER BY ca.activated_at DESC
+    `);
+
+    let rows = result.rows.map(r => {
+
+      const actionButton =
+        r.status === "active"
+          ? `<a href="/admin/agent-task-assignments">View</a>`
+          : `<a href="/admin/client-agents/activate/${r.id}">Activate</a>`;
+
+      return `
         <tr>
           <td>${r.id}</td>
           <td>${r.client || r.client_id}</td>
@@ -42,32 +49,41 @@ function adminClientAgents(pool, renderPage) {
           <td>${r.target_type || "-"}</td>
           <td>${r.agent || r.agent_id}</td>
           <td>${r.status}</td>
-          <td>${r.activated_at}</td>
+          <td>${r.activated_at || "-"}</td>
+          <td>${actionButton}</td>
         </tr>
-      `).join("");
-
-      const content = `
-        <table>
-          <tr>
-            <th>ID</th>
-            <th>Client</th>
-            <th>System</th>
-            <th>Target</th>
-            <th>Agent</th>
-            <th>Status</th>
-            <th>Activated At</th>
-          </tr>
-          ${rows}
-        </table>
       `;
 
-      res.send(renderPage("Client Agents", content));
+    }).join("");
 
-    } catch (err) {
-      console.error(err);
-      res.send(err.message);
-    }
-  });
+    const content = `
+      <table>
+        <tr>
+          <th>ID</th>
+          <th>Client</th>
+          <th>System</th>
+          <th>Target</th>
+          <th>Agent</th>
+          <th>Status</th>
+          <th>Activated At</th>
+          <th>Actions</th>
+        </tr>
+
+        ${rows}
+
+      </table>
+    `;
+
+    res.send(renderPage("Client Agents", content));
+
+  } catch (err) {
+
+    console.error(err);
+    res.send(err.message);
+
+  }
+});
+
 
   /* =========================
    Pending Agent Setups
