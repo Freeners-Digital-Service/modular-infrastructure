@@ -14,6 +14,8 @@ function adminAgentTasks(pool, renderPage) {
         SELECT
           id,
           task_id,
+          agent_id,
+          agent_name,
           capability_name,
           task_name,
           status,
@@ -27,6 +29,8 @@ function adminAgentTasks(pool, renderPage) {
         <tr>
           <td>${r.id}</td>
           <td>${r.task_id || "N/A"}</td>
+          <td>${r.agent_id || "N/A"}</td>
+          <td>${r.agent_name || "N/A"}</td>
           <td>${r.capability_name || "N/A"}</td>
           <td>${r.task_name || "N/A"}</td>
           <td>${r.status || "N/A"}</td>
@@ -40,6 +44,8 @@ function adminAgentTasks(pool, renderPage) {
           <tr>
             <th>ID</th>
             <th>Task ID</th>
+            <th>Agent ID</th>
+            <th>Agent Name</th>
             <th>Capability</th>
             <th>Task Name</th>
             <th>Status</th>
