@@ -464,11 +464,11 @@ async function finishAgentSession(sessionId) {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS agent_task_logs (
         id SERIAL PRIMARY KEY,
-
+        client_name TEXT,
         client_id INTEGER,
-
-        agent_id TEXT,
+        
         agent_name TEXT,
+        agent_id TEXT,
 
         task_id INTEGER,
         task_name TEXT,
@@ -760,7 +760,7 @@ async function getMarketplaceProducts() {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS client_agents (
         id SERIAL PRIMARY KEY,
-
+        client_name TEXT,
         client_id INTEGER,
         system_id INTEGER,
         module_id INTEGER,

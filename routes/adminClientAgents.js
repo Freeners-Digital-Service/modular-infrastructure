@@ -243,30 +243,34 @@ router.get("/client-agents/activate/:id", async (req, res) => {
 
       await pool.query(
         `INSERT INTO agent_task_assignments (
+         client_name,
           client_id,
-          agent_id,
           agent_name,
-          capability_id,
+          agent_id,
           capability_name,
-          task_id,
+          capability_id,
           task_name,
+          task_id,
+          
           is_base_task,
           unlock_level,
           status
         )
         VALUES (
-          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
         )`,
         [
+          clientAgent.client_name,
           clientAgent.client_id,
-          clientAgent.agent_id,
           clientAgent.agent_name,
+          clientAgent.agent_id,
+          
 
-          task.capability_id,
           task.capability_name,
+          task.capability_id,
 
-          task.task_id,
           task.task_name,
+          task.task_id,
 
           true,
 

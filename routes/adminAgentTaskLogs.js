@@ -14,11 +14,12 @@ router.get("/agent-task-logs", async (req, res) => {
     const result = await pool.query(`
       SELECT
         id,
+        client_name,
         client_id,
-        agent_id,
         agent_name,
-        task_id,
+        agent_id,
         task_name,
+        task_id,
         event_type,
         status,
         created_at
@@ -29,11 +30,12 @@ router.get("/agent-task-logs", async (req, res) => {
     let rows = result.rows.map(r => `
       <tr>
         <td>${r.id}</td>
+        <td>${r.client_name || "N/A"}</td>
         <td>${r.client_id || "N/A"}</td>
-        <td>${r.agent_id || "N/A"}</td>
         <td>${r.agent_name || "N/A"}</td>
-        <td>${r.task_id || "N/A"}</td>
+        <td>${r.agent_id || "N/A"}</td>
         <td>${r.task_name || "N/A"}</td>
+        <td>${r.task_id || "N/A"}</td>
         <td>${r.event_type || "N/A"}</td>
         <td>${r.status || "N/A"}</td>
         <td>${r.created_at || "N/A"}</td>
@@ -41,20 +43,24 @@ router.get("/agent-task-logs", async (req, res) => {
     `).join("");
 
     const content = `
-      <table>
-        <tr>
-          <th>ID</th>
-          <th>Client ID</th>
-          <th>Agent ID</th>
-          <th>Agent Name</th>
-          <th>Task ID</th>
-          <th>Task Name</th>
-          <th>Event Type</th>
-          <th>Status</th>
-          <th>Created At</th>
-        </tr>
-        ${rows}
-      </table>
+    
+          <tr>
+            <th>ID</th>
+            <th>Client Name</th>
+            <th>Client ID</th>
+            <th>Agent Name</th>
+            <th>Agent ID</th>
+            <th>Task Name</th>
+            <th>Task ID</th>
+            <th>Event Type</th>
+            <th>Status</th>
+            <th>Created At</th>
+          </tr>
+
+          ${rows}
+
+        </table>
+      </div>
     `;
 
     res.send(
@@ -95,20 +101,24 @@ router.get("/agent-task-logs/view/:id", async (req, res) => {
     const log = result.rows[0];
 
     const content = `
+
+      <p><strong>Client Name:</strong>
+      ${log.client_name || "N/A"}</p>
+
       <p><strong>Client ID:</strong>
       ${log.client_id || "N/A"}</p>
-
-      <p><strong>Agent ID:</strong>
-      ${log.agent_id || "N/A"}</p>
 
       <p><strong>Agent Name:</strong>
       ${log.agent_name || "N/A"}</p>
 
-      <p><strong>Task ID:</strong>
-      ${log.task_id || "N/A"}</p>
+      <p><strong>Agent ID:</strong>
+      ${log.agent_id || "N/A"}</p>
 
       <p><strong>Task Name:</strong>
       ${log.task_name || "N/A"}</p>
+
+      <p><strong>Task ID:</strong>
+      ${log.task_id || "N/A"}</p>
 
       <p><strong>Event Type:</strong>
       ${log.event_type || "N/A"}</p>
@@ -127,6 +137,7 @@ router.get("/agent-task-logs/view/:id", async (req, res) => {
 
       <p><strong>Created At:</strong>
       ${log.created_at}</p>
+
     `;
 
     res.send(
@@ -143,6 +154,7 @@ router.get("/agent-task-logs/view/:id", async (req, res) => {
 
   }
 });
+
 
 
   return router;

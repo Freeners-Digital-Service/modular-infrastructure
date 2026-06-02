@@ -14,11 +14,16 @@ router.get("/agent-task-assignments", async (req, res) => {
     const result = await pool.query(`
       SELECT
         id,
+        client_name,
+        client_id,
+        agent_name,
         agent_id,
+        capability_name,
         capability_id,
-        task_id,
         task_name,
+        task_id,
         is_base_task,
+        unlock_level,
         status,
         created_at
       FROM agent_task_assignments
@@ -28,30 +33,43 @@ router.get("/agent-task-assignments", async (req, res) => {
     let rows = result.rows.map(r => `
       <tr>
         <td>${r.id}</td>
+        <td>${r.client_name || "N/A"}</td>
+        <td>${r.client_id || "N/A"}</td>
+        <td>${r.agent_name || "N/A"}</td>
         <td>${r.agent_id || "N/A"}</td>
+        <td>${r.capability_name || "N/A"}</td>
         <td>${r.capability_id || "N/A"}</td>
-        <td>${r.task_id || "N/A"}</td>
         <td>${r.task_name || "N/A"}</td>
+        <td>${r.task_id || "N/A"}</td>
         <td>${r.is_base_task}</td>
+        <td>${r.unlock_level || 1}</td>
         <td>${r.status || "N/A"}</td>
         <td>${r.created_at || "N/A"}</td>
       </tr>
     `).join("");
 
     const content = `
-      <table>
-        <tr>
-          <th>ID</th>
-          <th>Agent ID</th>
-          <th>Capability ID</th>
-          <th>Task ID</th>
-          <th>Task Name</th>
-          <th>Base Task</th>
-          <th>Status</th>
-          <th>Created At</th>
-        </tr>
-        ${rows}
-      </table>
+      
+          <tr>
+            <th>ID</th>
+            <th>Client Name</th>
+            <th>Client ID</th>
+            <th>Agent Name</th>
+            <th>Agent ID</th>
+            <th>Capability Name</th>
+            <th>Capability ID</th>
+            <th>Task Name</th>
+            <th>Task ID</th>           
+            <th>Base Task</th>
+            <th>Unlock Level</th>
+            <th>Status</th>
+            <th>Created At</th>
+          </tr>
+
+          ${rows}
+
+        </table>
+      </div>
     `;
 
     res.send(
@@ -68,6 +86,7 @@ router.get("/agent-task-assignments", async (req, res) => {
 
   }
 });
+
 
 /* =========================
    View Assignment
@@ -92,17 +111,30 @@ router.get("/agent-task-assignments/view/:id", async (req, res) => {
     const assignment = result.rows[0];
 
     const content = `
+
+      <p><strong>Client Name:</strong>
+      ${assignment.client_name || "N/A"}</p>
+
+      <p><strong>Client ID:</strong>
+      ${assignment.client_id || "N/A"}</p>
+
+      <p><strong>Agent Name:</strong>
+      ${assignment.agent_name || "N/A"}</p>
+
       <p><strong>Agent ID:</strong>
       ${assignment.agent_id || "N/A"}</p>
+
+      <p><strong>Capability Name:</strong>
+      ${assignment.capability_name || "N/A"}</p>
 
       <p><strong>Capability ID:</strong>
       ${assignment.capability_id || "N/A"}</p>
 
-      <p><strong>Task ID:</strong>
-      ${assignment.task_id || "N/A"}</p>
-
       <p><strong>Task Name:</strong>
       ${assignment.task_name || "N/A"}</p>
+
+      <p><strong>Task ID:</strong>
+      ${assignment.task_id || "N/A"}</p>
 
       <p><strong>Base Task:</strong>
       ${assignment.is_base_task}</p>
@@ -118,6 +150,7 @@ router.get("/agent-task-assignments/view/:id", async (req, res) => {
 
       <p><strong>Updated At:</strong>
       ${assignment.updated_at}</p>
+
     `;
 
     res.send(
@@ -134,6 +167,7 @@ router.get("/agent-task-assignments/view/:id", async (req, res) => {
 
   }
 });
+
 
 /* =========================
    Edit Assignment

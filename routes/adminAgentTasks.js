@@ -7,64 +7,70 @@ function adminAgentTasks(pool, renderPage) {
      Admin Agent Tasks
   ========================= */
 
-  router.get("/agent-tasks", async (req, res) => {
-    try {
+router.get("/agent-tasks", async (req, res) => {
+  try {
 
-      const result = await pool.query(`
-        SELECT
-          id,
-          task_id,
-          agent_id,
-          agent_name,
-          capability_name,
-          task_name,
-          status,
-          unlock_level,
-          created_at
-        FROM agent_tasks
-        ORDER BY created_at DESC
-      `);
+    const result = await pool.query(`
+      SELECT
+        id,
+        task_id,
+        agent_id,
+        agent_name,
+        capability_id,
+        capability_name,
+        task_name,
+        status,
+        unlock_level,
+        created_at
+      FROM agent_tasks
+      ORDER BY created_at DESC
+    `);
 
-      let rows = result.rows.map(r => `
-        <tr>
-          <td>${r.id}</td>
-          <td>${r.task_id || "N/A"}</td>
-          <td>${r.agent_id || "N/A"}</td>
-          <td>${r.agent_name || "N/A"}</td>
-          <td>${r.capability_name || "N/A"}</td>
-          <td>${r.task_name || "N/A"}</td>
-          <td>${r.status || "N/A"}</td>
-          <td>${r.unlock_level || "N/A"}</td>
-          <td>${r.created_at || "N/A"}</td>
-        </tr>
-      `).join("");
+    let rows = result.rows.map(r => `
+      <tr>
+        <td>${r.id}</td>
+        <td>${r.agent_name || "N/A"}</td>
+        <td>${r.agent_id || "N/A"}</td>
+        <td>${r.capability_name || "N/A"}</td>
+        <td>${r.capability_id || "N/A"}</td>
+        <td>${r.task_name || "N/A"}</td>
+        <td>${r.task_id || "N/A"}</td>
+        <td>${r.status || "N/A"}</td>
+        <td>${r.unlock_level || "N/A"}</td>
+        <td>${r.created_at || "N/A"}</td>
+      </tr>
+    `).join("");
 
-      const content = `
-        <table>
+    const content = `
+    
           <tr>
             <th>ID</th>
-            <th>Task ID</th>
-            <th>Agent ID</th>
             <th>Agent Name</th>
-            <th>Capability</th>
+            <th>Agent ID</th>
+            <th>Capability Name</th>
+            <th>Capability ID</th>
             <th>Task Name</th>
+            <th>Task ID</th>
             <th>Status</th>
             <th>Unlock Level</th>
             <th>Created At</th>
           </tr>
+
           ${rows}
+
         </table>
-      `;
+      </div>
+    `;
 
-      res.send(renderPage("Agent Tasks", content));
+    res.send(renderPage("Agent Tasks", content));
 
-    } catch (err) {
+  } catch (err) {
 
-      console.error(err);
-      res.send(err.message);
+    console.error(err);
+    res.send(err.message);
 
-    }
-  });
+  }
+});
 
 
   /* =========================
@@ -92,13 +98,23 @@ router.get("/agent-tasks/view/:id", async (req, res) => {
     const content = `
       <h3>${task.task_name || "N/A"}</h3>
 
-      <p><strong>Task ID:</strong> ${task.task_id}</p>
+      <p><strong>Agent Name:</strong>
+      ${task.agent_name || "N/A"}</p>
 
-      <p><strong>Capability ID:</strong>
-      ${task.capability_id || "N/A"}</p>
+      <p><strong>Agent ID:</strong>
+      ${task.agent_id || "N/A"}</p>
+
+      <p><strong>Task Name:</strong>
+      ${task.task_name || "N/A"}</p>
+
+      <p><strong>Task ID:</strong>
+      ${task.task_id || "N/A"}</p>
 
       <p><strong>Capability Name:</strong>
       ${task.capability_name || "N/A"}</p>
+
+      <p><strong>Capability ID:</strong>
+      ${task.capability_id || "N/A"}</p>
 
       <p><strong>Description:</strong>
       ${task.task_description || "N/A"}</p>
@@ -134,6 +150,7 @@ router.get("/agent-tasks/view/:id", async (req, res) => {
 
   }
 });
+
 
 
 
