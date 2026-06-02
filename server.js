@@ -376,6 +376,7 @@ async function finishAgentSession(sessionId) {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS agent_task_assignments (
         id SERIAL PRIMARY KEY,
+        client_name TEXT,
         client_id INTEGER,
         agent_id TEXT,
         agent_name TEXT,
