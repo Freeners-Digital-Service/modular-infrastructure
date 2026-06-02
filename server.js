@@ -380,6 +380,7 @@ async function finishAgentSession(sessionId) {
         agent_id TEXT,
         agent_name TEXT,
         capability_id TEXT,
+        capability_name TEXT,
         task_name TEXT,
         task_id INTEGER,
 
