@@ -42,7 +42,7 @@ router.get("/agent-tasks", async (req, res) => {
     `).join("");
 
     const content = `
-    
+          <table>
           <tr>
             <th>ID</th>
             <th>Agent Name</th>

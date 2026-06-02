@@ -43,7 +43,7 @@ router.get("/agent-task-logs", async (req, res) => {
     `).join("");
 
     const content = `
-    
+         <table>
           <tr>
             <th>ID</th>
             <th>Client Name</th>
