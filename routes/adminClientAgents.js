@@ -287,7 +287,7 @@ router.get("/client-agents/activate/:id", async (req, res) => {
       [id]
     );
 
-    res.redirect("/client-agents");
+    res.redirect("/admin/client-agents");
 
   } catch (err) {
 
