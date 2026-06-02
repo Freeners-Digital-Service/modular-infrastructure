@@ -185,62 +185,82 @@ router.get("/client-agents/activate/:id", async (req, res) => {
     const { id } = req.params;
 
     const clientAgentResult = await pool.query(
-  `SELECT *
-   FROM client_agents
-   WHERE id = $1`,
-  [id]
-);
+      `SELECT *
+       FROM client_agents
+       WHERE id = $1`,
+      [id]
+    );
 
-if (clientAgentResult.rows.length === 0) {
-  return res.send("Client agent not found");
-}
+    if (clientAgentResult.rows.length === 0) {
+      return res.send("Client agent not found");
+    }
 
-const clientAgent = clientAgentResult.rows[0];
+    const clientAgent =
+      clientAgentResult.rows[0];
 
-const tasksResult = await pool.query(
-  `SELECT *
-   FROM agent_tasks
-   WHERE agent_id = $1`,
-  [clientAgent.agent_id]
-);
+    const tasksResult = await pool.query(
+      `SELECT *
+       FROM agent_tasks
+       WHERE agent_id = $1`,
+      [clientAgent.agent_id]
+    );
 
+    for (const task of tasksResult.rows) {
 
-for (const task of tasksResult.rows) {
+      const existingAssignment = await pool.query(
+        `SELECT id
+         FROM agent_task_assignments
+         WHERE
+           client_id = $1
+           AND agent_id = $2
+           AND task_id = $3`,
+        [
+          clientAgent.client_id,
+          clientAgent.agent_id,
+          task.task_id
+        ]
+      );
 
-  await pool.query(
-    `INSERT INTO agent_task_assignments (
-      client_id,
-      agent_id,
-      agent_name,
-      capability_id,
-      task_id,
-      task_name,
-      is_base_task,
-      unlock_level,
-      status
-    )
-    VALUES (
-      $1,$2,$3,$4,$5,$6,$7,$8,$9
-    )`,
-    [
-      clientAgent.client_id,
-      clientAgent.agent_id,
-      clientAgent.agent_name,
+      if (existingAssignment.rows.length > 0) {
+        continue;
+      }
 
-      task.capability_id,
+      await pool.query(
+        `INSERT INTO agent_task_assignments (
+          client_id,
+          agent_id,
+          agent_name,
+          capability_id,
+          capability_name,
+          task_id,
+          task_name,
+          is_base_task,
+          unlock_level,
+          status
+        )
+        VALUES (
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10
+        )`,
+        [
+          clientAgent.client_id,
+          clientAgent.agent_id,
+          clientAgent.agent_name,
 
-      task.task_id,
-      task.task_name,
+          task.capability_id,
+          task.capability_name,
 
-      true,
+          task.task_id,
+          task.task_name,
 
-      task.unlock_level || 1,
+          true,
 
-      "active"
-    ]
-  );
+          task.unlock_level || 1,
 
-}
+          "active"
+        ]
+      );
+
+    }
 
     await pool.query(
       `UPDATE client_agents
