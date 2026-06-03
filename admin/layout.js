@@ -224,41 +224,97 @@ function renderPage(title, content) {
 
   <body>
 
-    <div class="sidebar">
+    <div class="brand">
+    Freener OS
+  </div>
 
-      <div class="brand">
-        Freener OS
-      </div>
+  <div class="menu-title">
+    Navigation
+  </div>
 
-      <div class="menu-title">
-        Navigation
-      </div>
+  <a href="/admin">
+    Dashboard
+  </a>
 
-      <a href="/admin">
-        Dashboard
-      </a>
+  <a href="/admin/clients">
+    Clients
+  </a>
 
-      <a href="/admin/clients">
-        Clients
-      </a>
+  <a href="/admin/systems">
+    Systems
+  </a>
 
-      <a href="/admin/systems">
-        Systems
-      </a>
+  <a href="/admin/websites">
+    Websites
+  </a>
 
-      <a href="/admin/websites">
-      Websites
-      </a>
+  <a href="/admin/modules">
+    Modules
+  </a>
 
-      <a href="/admin/modules">
-        Modules
-      </a>
+  <a href="/admin/agents">
+    Agents
+  </a>
 
-      <a href="/admin/agents">
-        Agents
-      </a>
+  <div class="menu-title"
+       onclick="toggleMenu('agentAutomation')"
+       style="cursor:pointer;">
+    ▼ Agent Automation
+  </div>
 
-    </div>
+  <div id="agentAutomation">
+
+    <a href="/admin/client-agents">
+      Client Agents
+    </a>
+
+    <a href="/admin/agent-capabilities">
+      Agent Capabilities
+    </a>
+
+    <a href="/admin/agent-tasks">
+      Agent Tasks
+    </a>
+
+    <a href="/admin/agent-task-assignments">
+      Task Assignments
+    </a>
+
+    <a href="/admin/agent-task-logs">
+      Task Logs
+    </a>
+
+  </div>
+
+  <div class="menu-title"
+       onclick="toggleMenu('billingOperations')"
+       style="cursor:pointer;">
+    ▶ Billing & Operations
+  </div>
+
+  <div
+    id="billingOperations"
+    style="display:none;">
+
+    <a href="/admin/invoices">
+      Invoices
+    </a>
+
+    <a href="/admin/payments">
+      Payments
+    </a>
+
+    <a href="/admin/transactions">
+      Transactions
+    </a>
+
+    <a href="/admin/subscriptions">
+      Subscriptions
+    </a>
+
+  </div>
+
+</div>
 
     <div class="main">
 
@@ -269,6 +325,22 @@ function renderPage(title, content) {
       ${content}
 
     </div>
+
+<script>
+function toggleMenu(id) {
+
+  const menu =
+    document.getElementById(id);
+
+  if (menu.style.display === "none") {
+    menu.style.display = "block";
+  } else {
+    menu.style.display = "none";
+  }
+
+}
+</script>
+
 
   </body>
   </html>
