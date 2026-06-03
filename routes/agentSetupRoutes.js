@@ -42,60 +42,73 @@ router.post("/save", async (req, res) => {
       });
     }
 
-    const behaviorValue = Array.isArray(agent_behavior)
-      ? agent_behavior.join(", ")
-      : agent_behavior || null;
+          const behaviorValue = Array.isArray(agent_behavior)
+        ? agent_behavior.join(", ")
+        : agent_behavior || null;
 
-    const catalog = await pool.query(
-      `SELECT name, monthly_fee
-       FROM agents_catalog
-       WHERE id = $1`,
-      [agent_id]
-    );
+      const catalog = await pool.query(
+        `SELECT name, monthly_fee
+        FROM agents_catalog
+        WHERE id = $1`,
+        [agent_id]
+      );
 
-    const catalogAgentName =
-      agent_name || catalog.rows[0]?.name || null;
+      const catalogAgentName =
+        agent_name || catalog.rows[0]?.name || null;
 
-    const catalogMonthlyFee =
-      catalog.rows[0]?.monthly_fee || 0;
+      const catalogMonthlyFee =
+        catalog.rows[0]?.monthly_fee || 0;
 
-    const existing = await pool.query(
-      `SELECT id
-       FROM client_agents
-       WHERE client_id = $1 AND agent_id = $2`,
-      [client_id, agent_id]
-    );
+      const clientResult = await pool.query(
+        `SELECT name
+        FROM clients
+        WHERE id = $1`,
+        [client_id]
+      );
+
+      const client_name =
+        clientResult.rows[0]?.name || null;
+
+      const existing = await pool.query(
+        `SELECT id
+        FROM client_agents
+        WHERE client_id = $1 AND agent_id = $2`,
+        [client_id, agent_id]
+      );
+
 
     if (existing.rows.length > 0) {
       await pool.query(
         `UPDATE client_agents SET
           agent_name = COALESCE($1, agent_name),
+          client_name = COALESCE($2, client_name),
 
-          target_type = COALESCE($2, target_type),
-          target_reference = COALESCE($3, target_reference),
+          target_type = COALESCE($3, target_type),
+          target_reference = COALESCE($4, target_reference),
 
-          website_name = COALESCE($4, website_name),
-          website_url = COALESCE($5, website_url),
-          website_platform = COALESCE($6, website_platform),
+          website_name = COALESCE($5, website_name),
+          website_url = COALESCE($6, website_url),
+          website_platform = COALESCE($7, website_platform),
 
-          system_name = COALESCE($7, system_name),
-          system_url = COALESCE($8, system_url),
-          system_type = COALESCE($9, system_type),
+          system_name = COALESCE($8, system_name),
+          system_url = COALESCE($9, system_url),
+          system_type = COALESCE($10, system_type),
 
-          platform_name = COALESCE($10, platform_name),
-          account_name = COALESCE($11, account_name),
-          profile_url = COALESCE($12, profile_url),
+          platform_name = COALESCE($11, platform_name),
+          account_name = COALESCE($12, account_name),
+          profile_url = COALESCE($13, profile_url),
 
-          agent_behavior = COALESCE($13, agent_behavior),
-          additional_information = COALESCE($14, additional_information),
-          contact_method = COALESCE($15, contact_method),
+          agent_behavior = COALESCE($14, agent_behavior),
+          additional_information = COALESCE($15, additional_information),
+          contact_method = COALESCE($16, contact_method),
 
           setup_submitted = FALSE,
           setup_submitted_at = NULL,
           configuration_status = 'draft'
-         WHERE client_id = $16 AND agent_id = $17`,
+         WHERE client_id = $17 AND agent_id = $18`,
         [
           catalogAgentName,
+          client_name,
           target_type,
           target_reference,
 
@@ -123,6 +136,7 @@ router.post("/save", async (req, res) => {
       await pool.query(
         `INSERT INTO client_agents (
           client_id,
+          client_name,
           system_id,
           module_id,
           agent_id,
@@ -186,10 +200,12 @@ router.post("/save", async (req, res) => {
           'active',
 
           $18,
-          $18
+          $19,
+          $19
         )`,
         [
           client_id,
+          client_name,
           agent_id,
           catalogAgentName,
 
