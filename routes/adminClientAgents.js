@@ -190,7 +190,6 @@ router.get("/client-agents/approve/:id", async (req, res) => {
 });
 
 
-
 /* =========================
    Activate Agent
 ========================= */
@@ -243,7 +242,7 @@ router.get("/client-agents/activate/:id", async (req, res) => {
 
       await pool.query(
         `INSERT INTO agent_task_assignments (
-         client_name,
+          client_name,
           client_id,
           agent_name,
           agent_id,
@@ -251,7 +250,6 @@ router.get("/client-agents/activate/:id", async (req, res) => {
           capability_id,
           task_name,
           task_id,
-          
           is_base_task,
           unlock_level,
           status
@@ -262,9 +260,9 @@ router.get("/client-agents/activate/:id", async (req, res) => {
         [
           clientAgent.client_name,
           clientAgent.client_id,
+
           clientAgent.agent_name,
           clientAgent.agent_id,
-          
 
           task.capability_name,
           task.capability_id,
@@ -277,6 +275,45 @@ router.get("/client-agents/activate/:id", async (req, res) => {
           task.unlock_level || 1,
 
           "active"
+        ]
+      );
+
+      await pool.query(
+        `INSERT INTO agent_task_logs (
+          client_name,
+          client_id,
+          agent_name,
+          agent_id,
+          task_name,
+          task_id,
+          event_type,
+          message,
+          result,
+          status,
+          source
+        )
+        VALUES (
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
+        )`,
+        [
+          clientAgent.client_name,
+          clientAgent.client_id,
+
+          clientAgent.agent_name,
+          clientAgent.agent_id,
+
+          task.task_name,
+          task.task_id,
+
+          "TASK_ASSIGNED",
+
+          "Task assigned during agent activation",
+
+          "Assignment created",
+
+          "active",
+
+          "activation"
         ]
       );
 
@@ -300,6 +337,7 @@ router.get("/client-agents/activate/:id", async (req, res) => {
 
   }
 });
+
 
 
 
