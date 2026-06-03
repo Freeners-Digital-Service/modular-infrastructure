@@ -278,6 +278,8 @@ router.get("/client-agents/activate/:id", async (req, res) => {
         ]
       );
 
+      console.log("REACHED LOG INSERT");
+
       await pool.query(
         `INSERT INTO agent_task_logs (
           client_name,
