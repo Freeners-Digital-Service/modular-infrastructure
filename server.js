@@ -1990,7 +1990,37 @@ app.listen(PORT, "0.0.0.0", () => {
 });
 
 (async () => {
-  await seedSystemsCatalog(pool);
-  await seedWebsitesCatalog(pool);
-  await seedAgentsCatalog(pool);
+const systemsCount =
+    await pool.query(
+      "SELECT COUNT(*) FROM systems_catalog"
+    );
+
+  if (
+    Number(systemsCount.rows[0].count) === 0
+  ) {
+    await seedSystemsCatalog(pool);
+  }
+
+  const websitesCount =
+    await pool.query(
+      "SELECT COUNT(*) FROM websites_catalog"
+    );
+
+  if (
+    Number(websitesCount.rows[0].count) === 0
+  ) {
+    await seedWebsitesCatalog(pool);
+  }
+
+  const agentsCount =
+    await pool.query(
+      "SELECT COUNT(*) FROM agents_catalog"
+    );
+
+  if (
+    Number(agentsCount.rows[0].count) === 0
+  ) {
+    await seedAgentsCatalog(pool);
+  }
+
 })();
