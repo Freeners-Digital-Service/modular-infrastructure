@@ -61,8 +61,6 @@ const agentSetupRoutes = require("./routes/agentSetupRoutes");
 
 
 
-
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
