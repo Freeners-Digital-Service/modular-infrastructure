@@ -76,6 +76,30 @@ function renderPage(title, content) {
         transform:translateX(4px);
       }
 
+      .accordion-btn{
+        width:100%;
+        border:none;
+        background:transparent;
+        color:#e5e7eb;
+        text-align:left;
+        padding:14px 16px;
+        border-radius:12px;
+        cursor:pointer;
+        font-size:15px;
+        font-weight:500;
+        margin-bottom:10px;
+      }
+
+      .accordion-btn:hover{
+        background:#10b981;
+        color:white;
+      }
+
+      .accordion-content{
+        display:none;
+        padding-left:12px;
+      }
+
       /* =========================
          MAIN
       ========================= */
@@ -226,39 +250,103 @@ function renderPage(title, content) {
 
     <div class="sidebar">
 
-      <div class="brand">
-        Freener OS
-      </div>
+  <div class="brand">
+    Freener OS
+  </div>
 
-      <div class="menu-title">
-        Navigation
-      </div>
+  <div class="menu-title">
+    Navigation
+  </div>
 
-      <a href="/admin">
-        Dashboard
-      </a>
+  <a href="/admin">
+    Dashboard
+  </a>
 
-      <a href="/admin/clients">
-        Clients
-      </a>
+  <a href="/admin/clients">
+    Clients
+  </a>
 
-      <a href="/admin/systems">
-        Systems
-      </a>
+  <a href="/admin/systems">
+    Systems
+  </a>
 
-      <a href="/admin/websites">
-      Websites
-      </a>
+  <a href="/admin/websites">
+    Websites
+  </a>
 
-      <a href="/admin/modules">
-        Modules
-      </a>
+  <a href="/admin/modules">
+    Modules
+  </a>
 
-      <a href="/admin/agents">
-        Agents
-      </a>
+  <a href="/admin/agents">
+    Agents
+  </a>
 
-    </div>
+  <button class="accordion-btn">
+    Agent Automation
+  </button>
+
+  <div class="accordion-content">
+
+    <a href="/admin/client-agents">
+      Client Agents
+    </a>
+
+    <a href="/admin/agent-capabilities">
+      Agent Capabilities
+    </a>
+
+    <a href="/admin/agent-tasks">
+      Agent Tasks
+    </a>
+
+    <a href="/admin/agent-task-assignments">
+      Task Assignments
+    </a>
+
+    <a href="/admin/agent-task-logs">
+      Task Logs
+    </a>
+
+  </div>
+
+  <button class="accordion-btn">
+    Billing & Operations
+  </button>
+
+  <div class="accordion-content">
+
+    <a href="/admin/invoices">
+      Invoices
+    </a>
+
+    <a href="/admin/payments">
+      Payments
+    </a>
+
+    <a href="/admin/transactions">
+      Transactions
+    </a>
+
+    <a href="/admin/subscriptions">
+      Subscriptions
+    </a>
+
+    <a href="/admin/recurring-billing">
+      Recurring Billing
+    </a>
+
+    <a href="/admin/receipts">
+      Receipts
+    </a>
+
+    <a href="/admin/billing-logs">
+      Billing Logs
+    </a>
+
+  </div>
+
+</div>
 
     <div class="main">
 
@@ -269,6 +357,18 @@ function renderPage(title, content) {
       ${content}
 
     </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".accordion-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const content = btn.nextElementSibling;
+          content.style.display =
+            content.style.display === "block" ? "none" : "block";
+        });
+      });
+    });
+    </script>
 
   </body>
   </html>
