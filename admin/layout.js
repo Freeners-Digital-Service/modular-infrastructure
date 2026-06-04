@@ -35,6 +35,7 @@ function renderPage(title, content) {
         );
         color:white;
         min-height:100vh;
+        height:fit-content;
         padding:24px 18px;
         position:sticky;
         top:0;
