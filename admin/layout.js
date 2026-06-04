@@ -27,7 +27,7 @@ function renderPage(title, content) {
       ========================= */
 
       .sidebar{
-        width:260px;
+        width:240px;
         background:linear-gradient(
           180deg,
           #111827,
@@ -110,7 +110,8 @@ function renderPage(title, content) {
 
       .main{
         flex:1;
-        padding:35px;
+        width:1200px;
+        padding:10px;
         overflow-x:auto;
       }
 
