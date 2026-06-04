@@ -98,6 +98,9 @@ function renderPage(title, content) {
       .accordion-content{
         display:none;
         padding-left:12px;
+        background:#1f2937;
+        border-radius:12px;
+        margin-bottom:10px;
       }
 
       /* =========================
