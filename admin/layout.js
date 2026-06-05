@@ -102,7 +102,7 @@ function renderPage(title, content) {
         background:#0f3d3e;
         border-radius:12px;
         margin-bottom:10px;
-        height:500px;
+        height:400px;
         overflow-y:auto;
       }
 
