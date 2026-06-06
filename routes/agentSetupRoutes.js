@@ -170,42 +170,43 @@ router.post("/save", async (req, res) => {
           locked_price
         ) VALUES (
           $1,
-          NULL,
-          NULL,
           $2,
+          NULL,
+          NULL,
           $3,
-
           $4,
-          $5,
 
+          $5,
           $6,
+
           $7,
           $8,
-
           $9,
+
           $10,
           $11,
-
           $12,
+
           $13,
           $14,
-
           $15,
+
           $16,
           $17,
+          $18,
 
           FALSE,
           NULL,
           'draft',
           'active',
 
-          $18,
           $19,
-          $19
+          $20
         )`,
         [
           client_id,
           client_name,
+
           agent_id,
           catalogAgentName,
 
@@ -228,6 +229,7 @@ router.post("/save", async (req, res) => {
           additional_information || null,
           contact_method || null,
 
+          catalogMonthlyFee,
           catalogMonthlyFee
         ]
       );
@@ -315,15 +317,15 @@ router.post("/submit", async (req, res) => {
     }
 
     await pool.query(
-      `UPDATE client_agents
-       SET
-         setup_submitted = TRUE,
-         setup_submitted_at = CURRENT_TIMESTAMP,
-         configuration_status = 'pending'
-       WHERE client_id = $1
-       AND agent_id = $2`,
-      [client_id, agent_id]
-    );
+  `UPDATE client_agents
+   SET
+     setup_submitted = TRUE,
+     setup_submitted_at = CURRENT_TIMESTAMP,
+     configuration_status = 'under_configuration'
+   WHERE client_id = $1
+   AND agent_id = $2`,
+  [client_id, agent_id]
+);
 
     res.json({
       success: true,

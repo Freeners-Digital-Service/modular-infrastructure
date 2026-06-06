@@ -173,6 +173,7 @@ const agentsLaunchForm = {
       options: [
         "View Information Only",
         "Monitor & Alert Me",
+        "Take Recommended Action",
         "Full Agent Control"
       ]
     },

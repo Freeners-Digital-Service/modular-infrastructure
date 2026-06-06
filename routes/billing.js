@@ -90,6 +90,33 @@ if (system_id) {
  
 }
 
+
+  // 🤖 AGENT BILLING
+if (agent_id) {
+
+  const result = await pool.query(
+    `SELECT * FROM agents_catalog WHERE id = $1`,
+    [agent_id]
+  );
+
+  if (result.rows.length === 0) {
+    return res.status(404).json({
+      error: "Agent not found"
+    });
+  }
+
+  const agent = result.rows[0];
+
+  amount =
+    Number(agent.setup_fee) +
+    Number(agent.monthly_fee);
+
+  description =
+    agent.name + " setup + first month";
+
+}
+
+
       // ⚠️ FUTURE: system / module / agent here
 
       if (amount <= 0) {
@@ -307,6 +334,54 @@ if (billing.item_type === "system" || billing.system_id) {
     );
   }
 }
+
+
+if (billing.item_type === "agent" || billing.agent_id) {
+  const existingAgent = await pool.query(
+    `SELECT * FROM client_agents
+     WHERE client_id = $1
+     AND agent_id = $2`,
+    [billing.client_id, billing.agent_id]
+  );
+
+  if (existingAgent.rows.length === 0) {
+    const agentRes = await pool.query(
+      `SELECT *
+       FROM agents_catalog
+       WHERE id = $1`,
+      [billing.agent_id]
+    );
+
+    if (agentRes.rows.length > 0) {
+      const agent = agentRes.rows[0];
+
+      await pool.query(
+        `INSERT INTO client_agents
+        (
+          client_id,
+          agent_id,
+          agent_name,
+          monthly_fee,
+          locked_price,
+          configuration_status,
+          status
+        )
+        VALUES
+        ($1,$2,$3,$4,$5,$6,$7)`,
+        [
+          billing.client_id,
+          billing.agent_id,
+          agent.name,
+          agent.monthly_fee,
+          agent.setup_fee,
+          'under_configuration',
+          'active'
+        ]
+      );
+    }
+  }
+}
+
 
 console.log("✅ Payment confirmed & product unlocked:", tx_ref);
 

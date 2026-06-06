@@ -75,13 +75,23 @@ function clientProducts(pool) {
   });
 
   /* =========================
-     GET ALL CLIENT WEBSITES
-  ========================= */
+   GET ALL CLIENT WEBSITES
+========================= */
 
-  router.get("/", async (req, res) => {
-    try {
-      const result = await pool.query(`
-        SELECT 
+router.get("/", async (req, res) => {
+  try {
+
+    const { client_id } = req.query;
+
+    if (!client_id) {
+      return res.status(400).json({
+        error: "client_id is required"
+      });
+    }
+
+    const result = await pool.query(
+      `
+        SELECT
           cp.id,
           cp.client_id,
           cp.website_id,
@@ -102,22 +112,87 @@ function clientProducts(pool) {
           w.legend_features
 
         FROM client_products cp
-        LEFT JOIN websites_catalog w ON cp.website_id = w.id
+
+        LEFT JOIN websites_catalog w
+          ON cp.website_id = w.id
+
+        WHERE cp.client_id = $1
 
         ORDER BY cp.created_at DESC
-      `);
+      `,
+      [client_id]
+    );
 
-      res.json({
-        data: result.rows
-      });
+    res.json({
+      data: result.rows
+    });
 
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({
-        error: "Failed to fetch client products"
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: "Failed to fetch client products"
+    });
+   }
+   });
+
+
+   /* =========================
+   GET CLIENT SYSTEMS
+========================= */
+
+router.get("/systems", async (req, res) => {
+  try {
+
+    const { client_id } = req.query;
+
+    if (!client_id) {
+      return res.status(400).json({
+        error: "client_id is required"
       });
     }
-  });
+
+    const result = await pool.query(
+      `
+      SELECT
+        cs.id,
+        cs.client_id,
+        cs.system_id,
+        cs.status,
+        cs.created_at,
+
+        s.name,
+        s.description,
+        s.setup_fee,
+        s.monthly_fee
+
+      FROM client_systems cs
+
+      LEFT JOIN systems_catalog s
+        ON cs.system_id = s.id
+
+      WHERE cs.client_id = $1
+
+      ORDER BY cs.created_at DESC
+      `,
+      [client_id]
+    );
+
+    res.json({
+      data: result.rows
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to fetch client systems"
+    });
+
+  }
+});
+
+
 
   /* =========================
      GET SINGLE CLIENT WEBSITE
