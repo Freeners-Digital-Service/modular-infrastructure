@@ -71,7 +71,7 @@ function billingRoutes(pool) {
 
 
       // 🔥 SYSTEM BILLING
-if (system_id) {
+if (item_type === "system") {
   const result = await pool.query(
     `SELECT * FROM systems_catalog WHERE id = $1`,
     [system_id]
@@ -92,7 +92,7 @@ if (system_id) {
 
 
   // 🤖 AGENT BILLING
-if (agent_id) {
+if (item_type === "agent") {
 
   const result = await pool.query(
     `SELECT * FROM agents_catalog WHERE id = $1`,
