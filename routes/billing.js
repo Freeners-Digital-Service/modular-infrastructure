@@ -125,7 +125,10 @@ if (item_type === "agent") {
         });
       }
 
-      const tx_ref = "freener_" + Date.now();
+      const tx_ref =
+  `freener_${item_type}_${
+    website_id || system_id || agent_id
+  }_${Date.now()}`;
 
       // 🔹 CREATE BILLING (PENDING)
 await pool.query(
